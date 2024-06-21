@@ -29,7 +29,7 @@ public class InfoManager
         _manager = manager;
         plugin.RegisterListener<Listeners.OnTick>(OnTick);
         plugin.AddTimer(0.3f, OnTickAll, TimerFlags.REPEAT);
-        plugin.AddTimer(0.3f, OnTickScoreboard, TimerFlags.REPEAT);
+        plugin.AddTimer(0.1f, OnTickScoreboard, TimerFlags.REPEAT);
 
         plugin.RegisterEventHandler<EventSpecTargetUpdated>(OnPlayerSpectateChange);
     }
@@ -52,7 +52,7 @@ public class InfoManager
 
     public void OnTickScoreboard()
     {
-        foreach (var player in _roleService.Players())
+        foreach (var player in _roleService.GetPlayers().Keys)
         {
             player.ModifyScoreBoard();
         }

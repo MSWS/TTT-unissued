@@ -7,10 +7,10 @@ namespace TTT.Round;
 
 public static class ScoreboardListener
 {
-    public static void ModifyScoreBoard(this GamePlayer gamePlayer)
+    public static void ModifyScoreBoard(this CCSPlayerController? player)
     {
-        var player = gamePlayer.Player();
         if (player == null) return;
+        if (!player.IsReal()) return;
         var actionService = player.ActionTrackingServices;
         if (actionService == null) return;
 
