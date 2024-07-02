@@ -84,13 +84,13 @@ public class InfoManager
                 {
                     Server.NextFrame(() =>
                         player.PrintToCenterHtml(
-                            $"<font class='fontsize=m' color='red'>Your Role: {playerRole.GetCenterRole()}"));   
+                            $"<font class='fontsize=m' color='yellow'>Your Role: {playerRole.GetCenterRole()}"));   
                 }
                 else
                 {
                     Server.NextFrame(() => player.PrintToCenterHtml(
-                        $"<font class='fontsize=m' color='red'>Your Role: {playerRole.GetCenterRole()} <br>"
-                        + $"<font class='fontsize=m' color='red'>{target.PlayerName}'s Role: {_roleService.GetRole(target).GetCenterRole()}"));
+                        $"<font class='fontsize=m' color='yellow'>Your Role: {playerRole.GetCenterRole()} <br>"
+                        + $"<font class='fontsize=m' color='yellow'>{target.PlayerName}'s Role: {_roleService.GetRole(target).GetCenterRole()}"));
                 }
                 
                 continue;
@@ -100,7 +100,7 @@ public class InfoManager
             {
                 Server.NextFrame(() =>
                     player.PrintToCenterHtml(
-                        $"<font class='fontsize=m' color='red'>Your Role: {playerRole.GetCenterRole()}"));
+                        $"<font class='fontsize=m' color='yellow'>Your Role: {playerRole.GetCenterRole()}"));
                 continue;
             }
 
@@ -109,16 +109,16 @@ public class InfoManager
             if (value.Item2 == playerRole || playerRole == Role.Traitor || value.Item2 == Role.Detective)
             {
                 Server.NextFrame(() => player.PrintToCenterHtml(
-                    $"<font class='fontsize=m' color='red'>Your Role: {playerRole.GetCenterRole()} <br>"
-                    + $"<font class='fontsize=m' color='red'>{value.Item1.PlayerName}'s Role: {value.Item2.GetCenterRole()}"));
+                    $"<font class='fontsize=m' color='yellow'>Your Role: {playerRole.GetCenterRole()} <br>"
+                    + $"<font class='fontsize=m' color='yellow'>{value.Item1.PlayerName}'s Role: {value.Item2.GetCenterRole()}"));
             }
 
 
             if (playerRole != Role.Innocent && (value.Item2 != Role.Traitor || playerRole != Role.Detective)) continue;
             
             Server.NextFrame(() => player.PrintToCenterHtml(
-                $"<font class='fontsize=m' color='red'>Your Role: {playerRole.GetCenterRole()} <br>"
-                + $"<font class='fontsize=m' color='red'>{value.Item1.PlayerName}'s Role: {Role.Unassigned.GetCenterRole()}"));
+                $"<font class='fontsize=m' color='yellow'>Your Role: {playerRole.GetCenterRole()} <br>"
+                + $"<font class='fontsize=m' color='yellow'>{value.Item1.PlayerName}'s Role: {Role.Unassigned.GetCenterRole()}"));
         }
     }
 

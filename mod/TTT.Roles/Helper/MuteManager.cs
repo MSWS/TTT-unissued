@@ -49,12 +49,13 @@ public class MuteManager
         {
             // Normal players can't speak when dead
             Mute(player);
+            Server.NextFrame(() => player.PrintToCenter("You are dead and muted!"));
             return;
         }
 
         if (IsMuted(player))
         {
-            // Remind any muted players they're muted
+            Server.NextFrame(() => player.PrintToCenter("You are muted!"));
             return;
         }
     }

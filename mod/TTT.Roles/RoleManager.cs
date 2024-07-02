@@ -85,7 +85,12 @@ public class RoleManager : PlayerHandler, IRoleService, IPluginBehavior
     private HookResult OnRoundStart(EventRoundFreezeEnd @event, GameEventInfo info)
     {
         _roundService.SetRoundStatus(RoundStatus.Waiting);
-        
+        foreach (var player in Utilities.GetPlayers().Where(player => player.IsReal() && player.Team != CsTeam.None || player.Team != CsTeam.Spectator))
+        {
+            player.RemoveWeapons();
+            player.GiveNamedItem("weapon_knife");
+            player.GiveNamedItem("weapon_glock");
+        }
         return HookResult.Continue;
     }
 
