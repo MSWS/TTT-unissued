@@ -49,13 +49,12 @@ public class AwpItem : IShopItem
 }
 ```
 
-## Features
-- [ ] Role assignment
-- [ ] DNA Scanner
-- [ ] Tazer
+## Road Map
+- [✅] Role assignment
+- [✅] DNA Scanner
+- [✅] Tazer
+- [ ] Configuration
 - [ ] Karma system
-
-## After Base
 - [ ] Shop
 - [ ] RDM Manager
 - [ ] Add database support for logs and stats
