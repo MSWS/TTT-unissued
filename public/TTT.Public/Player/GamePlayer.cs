@@ -18,6 +18,7 @@ public class GamePlayer : IInventory
     private readonly List<IShopItem> _items = [];
     private bool _shopOpen = false;
     private bool _isFound = false;
+    private bool _isDead = false;
 
     public GamePlayer(Role playerRole, long credits, int karma, int playerId)
     {
@@ -49,6 +50,17 @@ public class GamePlayer : IInventory
         return _items.Any(shopItem => shopItem.Name().Equals(item));
     }
 
+    public bool IsDead(bool isDead = false)
+    {
+        _isDead = isDead;
+        return _isDead;
+    }
+
+    public void SetDead(bool isDead = false)
+    {
+        _isDead = isDead;
+    }
+    
     public CCSPlayerController? Player()
     {
         return Utilities.GetPlayerFromUserid(_playerId);

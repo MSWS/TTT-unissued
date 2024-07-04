@@ -87,6 +87,10 @@ public class RoleManager : PlayerHandler, IRoleService, IPluginBehavior
 
             if (playerWhoWasDamaged == null) return HookResult.Continue;
                  
+            if (GetPlayer(playerWhoWasDamaged).IsDead()) return HookResult.Continue;
+            
+            GetPlayer(playerWhoWasDamaged).SetDead(true);
+            
             var info = hook.GetParam<CTakeDamageInfo>(1);
             
             CCSPlayerController? attacker = null;

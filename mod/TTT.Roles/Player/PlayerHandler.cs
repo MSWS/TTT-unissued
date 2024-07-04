@@ -45,6 +45,7 @@ public class PlayerHandler : IPlayerService
             player.ResetCredits();
             player.ModifyKarma();
             player.SetFound(false);
+            player.SetDead();
         }
     }
 }
