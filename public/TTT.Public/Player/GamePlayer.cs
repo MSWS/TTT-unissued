@@ -50,9 +50,8 @@ public class GamePlayer : IInventory
         return _items.Any(shopItem => shopItem.Name().Equals(item));
     }
 
-    public bool IsDead(bool isDead = false)
+    public bool IsDead()
     {
-        _isDead = isDead;
         return _isDead;
     }
 
