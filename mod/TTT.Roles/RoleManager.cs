@@ -78,6 +78,57 @@ public class RoleManager : PlayerHandler, IRoleService, IPluginBehavior
             
             return HookResult.Changed;
         }, HookMode.Pre);
+        
+        VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Hook(hook =>
+        {
+            var ent = hook.GetParam<CBaseEntity>(0);
+
+            var playerWhoWasDamaged = player(ent);
+
+            if (playerWhoWasDamaged == null) return HookResult.Continue;
+                 
+            var info = hook.GetParam<CTakeDamageInfo>(1);
+            
+            if (info.BitsDamageType is not 256) return HookResult.Continue;
+
+            CCSPlayerController? attacker = null;
+
+            if (info.Attacker.Value != null)
+            {
+                var playerWhoAttacked = info.Attacker.Value.As<CCSPlayerPawn>();
+
+                attacker = playerWhoAttacked.Controller.Value.As<CCSPlayerController>();   
+            }
+
+            if (info.Damage < playerWhoWasDamaged.Health) return HookResult.Continue;
+                
+            info.Damage = 0;
+            
+            GetPlayer(playerWhoWasDamaged).SetKiller(attacker);
+        
+            _muteManager.Mute(playerWhoWasDamaged);
+        
+            if (IsTraitor(playerWhoWasDamaged)) _traitorsLeft--;
+        
+            if (IsDetective(playerWhoWasDamaged) || IsInnocent(playerWhoWasDamaged)) _innocentsLeft--;
+        
+            if (_traitorsLeft == 0 || _innocentsLeft == 0) Server.NextFrame(() => _roundService.ForceEnd());
+
+            playerWhoWasDamaged.CommitSuicide(false, true);
+            
+            Server.NextFrame(() =>
+            {
+                Server.PrintToChatAll(StringUtils.FormatTTT($"{GetRole(playerWhoWasDamaged).FormatStringFullAfter(" has been found.")}"));
+            
+                if (attacker == playerWhoWasDamaged || attacker == null) return;
+        
+                playerWhoWasDamaged.PrintToChat(StringUtils.FormatTTT(
+                    $"You were killed by {GetRole(attacker).FormatStringFullAfter(" " + attacker.PlayerName)}."));
+                attacker.PrintToChat(StringUtils.FormatTTT($"You killed {GetRole(playerWhoWasDamaged).FormatStringFullAfter(" " + playerWhoWasDamaged.PlayerName)}."));
+            });
+            
+            return HookResult.Continue;
+        }, HookMode.Pre);
 
     }
 
@@ -112,37 +163,11 @@ public class RoleManager : PlayerHandler, IRoleService, IPluginBehavior
     {
         return HookResult.Continue;
     }
-
+    
     [GameEventHandler]
     private HookResult OnPlayerDeath(EventPlayerDeath @event, GameEventInfo info)
     {
         info.DontBroadcast = true;
-        var attacker = @event.Attacker;
-        var target = @event.Userid;
-        
-        if (!attacker.IsReal() || !target.IsReal()) return HookResult.Continue;
-        
-        GetPlayer(target).SetKiller(attacker);
-        
-        _muteManager.Mute(target);
-
-        
-        if (IsTraitor(target)) _traitorsLeft--;
-        
-        if (IsDetective(target) || IsInnocent(target)) _innocentsLeft--;
-
-        Server.NextFrame(() =>
-        {
-            Server.PrintToChatAll(StringUtils.FormatTTT($"{GetRole(target).FormatStringFullAfter(" has been found.")}"));
-            if (attacker == target) return;
-        
-            target.PrintToChat(StringUtils.FormatTTT(
-                $"You were killed by {GetRole(attacker).FormatStringFullAfter(" " + attacker.PlayerName)}."));
-            attacker.PrintToChat(StringUtils.FormatTTT($"You killed {GetRole(target).FormatStringFullAfter(" " + target.PlayerName)}."));
-        });
-        
-        
-        if (_traitorsLeft == 0 || _innocentsLeft == 0) Server.NextFrame(() => _roundService.ForceEnd());
         
         return HookResult.Continue;
     }
