@@ -90,8 +90,6 @@ public class RoleManager : PlayerHandler, IRoleService, IPluginBehavior
             var info = hook.GetParam<CTakeDamageInfo>(1);
             
             CCSPlayerController? attacker = null;
-
-            Server.PrintToChatAll("fuck you");
             
             if (info.Attacker.Value != null)
             {
@@ -101,9 +99,7 @@ public class RoleManager : PlayerHandler, IRoleService, IPluginBehavior
             }
 
             if (info.Damage < playerWhoWasDamaged.Health) return HookResult.Continue;
-                
-            Server.PrintToChatAll("fuck you 2");
-
+            
             info.Damage = 0;
             
             GetPlayer(playerWhoWasDamaged).SetKiller(attacker);
@@ -116,7 +112,7 @@ public class RoleManager : PlayerHandler, IRoleService, IPluginBehavior
         
             if (_traitorsLeft == 0 || _innocentsLeft == 0) Server.NextFrame(() => _roundService.ForceEnd());
 
-            playerWhoWasDamaged.CommitSuicide(false, true);
+            Server.NextFrame(() => playerWhoWasDamaged.CommitSuicide(false, true));
             
             Server.NextFrame(() =>
             {
@@ -129,9 +125,7 @@ public class RoleManager : PlayerHandler, IRoleService, IPluginBehavior
                 attacker.PrintToChat(StringUtils.FormatTTT($"You killed {GetRole(playerWhoWasDamaged).FormatStringFullAfter(" " + playerWhoWasDamaged.PlayerName)}."));
             });
             
-            Server.PrintToChatAll("fuck you 3");
-            
-            return HookResult.Changed;
+            return HookResult.Continue;
         }, HookMode.Pre);
 
     }
