@@ -93,6 +93,8 @@ public class RoleManager : PlayerHandler, IRoleService, IPluginBehavior
 
             CCSPlayerController? attacker = null;
 
+            Server.PrintToChatAll("fuck you");
+            
             if (info.Attacker.Value != null)
             {
                 var playerWhoAttacked = info.Attacker.Value.As<CCSPlayerPawn>();
@@ -102,6 +104,8 @@ public class RoleManager : PlayerHandler, IRoleService, IPluginBehavior
 
             if (info.Damage < playerWhoWasDamaged.Health) return HookResult.Continue;
                 
+            Server.PrintToChatAll("fuck you 2");
+
             info.Damage = 0;
             
             GetPlayer(playerWhoWasDamaged).SetKiller(attacker);
@@ -127,7 +131,9 @@ public class RoleManager : PlayerHandler, IRoleService, IPluginBehavior
                 attacker.PrintToChat(StringUtils.FormatTTT($"You killed {GetRole(playerWhoWasDamaged).FormatStringFullAfter(" " + playerWhoWasDamaged.PlayerName)}."));
             });
             
-            return HookResult.Continue;
+            Server.PrintToChatAll("fuck you 3");
+            
+            return HookResult.Changed;
         }, HookMode.Pre);
 
     }
