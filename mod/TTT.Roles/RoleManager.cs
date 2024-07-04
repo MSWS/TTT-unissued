@@ -46,7 +46,7 @@ public class RoleManager : PlayerHandler, IRoleService, IPluginBehavior
         parent.RegisterEventHandler<EventPlayerDeath>(OnPlayerDeath, HookMode.Pre);
         parent.RegisterEventHandler<EventGameStart>(OnMapStart);
         parent.RegisterEventHandler<EventPlayerSpawn>(Event_PlayerSpawn, HookMode.Post);
-        
+
         VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Hook(hook =>
         {
             var ent = hook.GetParam<CBaseEntity>(0);
@@ -55,42 +55,6 @@ public class RoleManager : PlayerHandler, IRoleService, IPluginBehavior
 
             if (playerWhoWasDamaged == null) return HookResult.Continue;
                  
-            var info = hook.GetParam<CTakeDamageInfo>(1);
-            
-            if (info.BitsDamageType is not 256) return HookResult.Continue;
-            
-            var playerWhoAttacked = info.Attacker.Value.As<CCSPlayerPawn>();
-
-            var playerWhoAttackedController = playerWhoAttacked.Controller.Value.As<CCSPlayerController>();
-            
-            info.Damage = 0f;
-            
-            var targetRole = GetPlayer(playerWhoWasDamaged);
-            
-            Server.NextFrame(() =>
-            {
-                playerWhoAttackedController.PrintToChat(
-                    StringUtils.FormatTTT(
-                        $"You tased player {playerWhoWasDamaged.PlayerName} they are a {targetRole.PlayerRole().FormatRoleFull()}"));
-            });
-            
-            _roundService.GetLogsService().AddLog(new MiscAction("tased player " + targetRole.PlayerRole().FormatStringFullAfter(playerWhoWasDamaged.PlayerName), playerWhoAttackedController));
-            
-            return HookResult.Changed;
-        }, HookMode.Pre);
-        
-        VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Hook(hook =>
-        {
-            var ent = hook.GetParam<CBaseEntity>(0);
-
-            var playerWhoWasDamaged = player(ent);
-
-            if (playerWhoWasDamaged == null) return HookResult.Continue;
-                 
-            if (GetPlayer(playerWhoWasDamaged).IsDead()) return HookResult.Continue;
-            
-            GetPlayer(playerWhoWasDamaged).SetDead(true);
-            
             var info = hook.GetParam<CTakeDamageInfo>(1);
             
             CCSPlayerController? attacker = null;
@@ -100,7 +64,33 @@ public class RoleManager : PlayerHandler, IRoleService, IPluginBehavior
                 var playerWhoAttacked = info.Attacker.Value.As<CCSPlayerPawn>();
 
                 attacker = playerWhoAttacked.Controller.Value.As<CCSPlayerController>();   
+                
             }
+
+            if (info.BitsDamageType is 256)
+            {
+                if (attacker == null) return HookResult.Continue;
+                
+                info.Damage = 0;
+                
+                var targetRole = GetPlayer(playerWhoWasDamaged);
+            
+                Server.NextFrame(() =>
+                {
+                    attacker.PrintToChat(
+                        StringUtils.FormatTTT(
+                            $"You tased player {playerWhoWasDamaged.PlayerName} they are a {targetRole.PlayerRole().FormatRoleFull()}"));
+                });
+            
+                _roundService.GetLogsService().AddLog(new MiscAction("tased player " + targetRole.PlayerRole().FormatStringFullAfter(playerWhoWasDamaged.PlayerName), attacker));
+
+
+                return HookResult.Stop;
+            }
+            
+            if (GetPlayer(playerWhoWasDamaged).IsDead()) return HookResult.Continue;
+            
+            GetPlayer(playerWhoWasDamaged).SetDead(true);
 
             if (info.Damage < playerWhoWasDamaged.Health) return HookResult.Continue;
             
