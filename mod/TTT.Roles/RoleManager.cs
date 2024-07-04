@@ -89,8 +89,6 @@ public class RoleManager : PlayerHandler, IRoleService, IPluginBehavior
                  
             var info = hook.GetParam<CTakeDamageInfo>(1);
             
-            if (info.BitsDamageType is not 256) return HookResult.Continue;
-
             CCSPlayerController? attacker = null;
 
             Server.PrintToChatAll("fuck you");
