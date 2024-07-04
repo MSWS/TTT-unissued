@@ -25,12 +25,10 @@ public class RoundManager : IRoundService
         _logs = new LogsListener(roleService, plugin, 1);
         plugin.RegisterListener<Listeners.OnTick>(TickWaiting);
         
-        VirtualFunctions.SwitchTeamFunc.Hook(hook =>
+        plugin.AddCommandListener("jointeam", (player, info) =>
         {
             if (_roundStatus != RoundStatus.Started) return HookResult.Continue;
-            var playerPointer = hook.GetParam<nint>(0);
-            var player = new CCSPlayerController(playerPointer);
-            if (!player.IsValid) return HookResult.Continue;
+            if (player == null) return HookResult.Continue;
             if (!player.IsReal()) return HookResult.Continue;
             if (_roleService.GetRole(player) != Role.Unassigned) return HookResult.Continue;
             Server.NextFrame(() => player.CommitSuicide(false, true));
