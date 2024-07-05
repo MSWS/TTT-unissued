@@ -22,6 +22,7 @@ public static class ScoreboardListener
         RemoveAssists(player);
         RemoveEnemiesFlashed(player);
         RemoveHeadshotKills(player);
+        KillIconTest(player);
     }
     
     public static void ModifyKarma(this GamePlayer gamePlayer)
