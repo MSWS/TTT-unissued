@@ -91,6 +91,12 @@ public class RoleManager : PlayerHandler, IRoleService, IPluginBehavior
             
             GetPlayer(playerWhoWasDamaged).SetDead(true);
 
+            
+            Server.NextFrame(() =>
+            {
+                Server.PrintToChatAll("Damage: " + info.Damage + " Health: " + playerWhoWasDamaged.PlayerPawn.Value.Health);
+            });
+            
             if (info.Damage < playerWhoWasDamaged.PlayerPawn.Value.Health) return HookResult.Continue;
             
             info.Damage = 0;
