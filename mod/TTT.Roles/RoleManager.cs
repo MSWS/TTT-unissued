@@ -86,7 +86,8 @@ public class RoleManager : PlayerHandler, IRoleService, IPluginBehavior
                 
                 return HookResult.Stop;
             }
-            
+
+            return HookResult.Continue;
             
             Server.NextFrame(() =>
             {
