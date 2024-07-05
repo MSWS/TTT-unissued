@@ -87,10 +87,6 @@ public class RoleManager : PlayerHandler, IRoleService, IPluginBehavior
                 return HookResult.Stop;
             }
             
-            if (GetPlayer(playerWhoWasDamaged).IsDead()) return HookResult.Continue;
-            
-            GetPlayer(playerWhoWasDamaged).SetDead(true);
-
             
             Server.NextFrame(() =>
             {
@@ -98,6 +94,11 @@ public class RoleManager : PlayerHandler, IRoleService, IPluginBehavior
             });
             
             if (info.Damage < playerWhoWasDamaged.PlayerPawn.Value.Health) return HookResult.Continue;
+            
+            if (GetPlayer(playerWhoWasDamaged).IsDead()) return HookResult.Continue;
+            
+            GetPlayer(playerWhoWasDamaged).SetDead(true);
+
             
             info.Damage = 0;
             
