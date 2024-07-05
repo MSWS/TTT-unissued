@@ -86,8 +86,6 @@ public class RoleManager : PlayerHandler, IRoleService, IPluginBehavior
                 
                 return HookResult.Stop;
             }
-
-            return HookResult.Continue;
             
             Server.NextFrame(() =>
             {
@@ -102,29 +100,6 @@ public class RoleManager : PlayerHandler, IRoleService, IPluginBehavior
 
             
             info.Damage = 0;
-            
-            GetPlayer(playerWhoWasDamaged).SetKiller(attacker);
-        
-            _muteManager.Mute(playerWhoWasDamaged);
-        
-            if (IsTraitor(playerWhoWasDamaged)) _traitorsLeft--;
-        
-            if (IsDetective(playerWhoWasDamaged) || IsInnocent(playerWhoWasDamaged)) _innocentsLeft--;
-        
-            if (_traitorsLeft == 0 || _innocentsLeft == 0) Server.NextFrame(() => _roundService.ForceEnd());
-
-            Server.NextFrame(() => playerWhoWasDamaged.CommitSuicide(false, true));
-            
-            Server.NextFrame(() =>
-            {
-                Server.PrintToChatAll(StringUtils.FormatTTT($"{GetRole(playerWhoWasDamaged).FormatStringFullAfter(" has been found.")}"));
-            
-                if (attacker == playerWhoWasDamaged || attacker == null) return;
-        
-                playerWhoWasDamaged.PrintToChat(StringUtils.FormatTTT(
-                    $"You were killed by {GetRole(attacker).FormatStringFullAfter(" " + attacker.PlayerName)}."));
-                attacker.PrintToChat(StringUtils.FormatTTT($"You killed {GetRole(playerWhoWasDamaged).FormatStringFullAfter(" " + playerWhoWasDamaged.PlayerName)}."));
-            });
             
             return HookResult.Continue;
         }, HookMode.Pre);
@@ -167,6 +142,38 @@ public class RoleManager : PlayerHandler, IRoleService, IPluginBehavior
     private HookResult OnPlayerDeath(EventPlayerDeath @event, GameEventInfo info)
     {
         info.DontBroadcast = true;
+
+        var playerWhoWasDamaged = @event.Userid;
+        var attacker = @event.Attacker;
+
+        if (playerWhoWasDamaged == null) return HookResult.Continue;
+
+        playerWhoWasDamaged.ModifyScoreBoard();
+        
+        GetPlayer(playerWhoWasDamaged).SetKiller(attacker);
+        
+        _muteManager.Mute(playerWhoWasDamaged);
+        
+        if (IsTraitor(playerWhoWasDamaged)) _traitorsLeft--;
+        
+        if (IsDetective(playerWhoWasDamaged) || IsInnocent(playerWhoWasDamaged)) _innocentsLeft--;
+        
+        if (_traitorsLeft == 0 || _innocentsLeft == 0) Server.NextFrame(() => _roundService.ForceEnd());
+
+        Server.NextFrame(() => playerWhoWasDamaged.CommitSuicide(false, true));
+            
+        Server.NextFrame(() =>
+        {
+            Server.PrintToChatAll(StringUtils.FormatTTT($"{GetRole(playerWhoWasDamaged).FormatStringFullAfter(" has been found.")}"));
+            
+            if (attacker == playerWhoWasDamaged || attacker == null) return;
+            
+            attacker.ModifyScoreBoard();
+            
+            playerWhoWasDamaged.PrintToChat(StringUtils.FormatTTT(
+                $"You were killed by {GetRole(attacker).FormatStringFullAfter(" " + attacker.PlayerName)}."));
+            attacker.PrintToChat(StringUtils.FormatTTT($"You killed {GetRole(playerWhoWasDamaged).FormatStringFullAfter(" " + playerWhoWasDamaged.PlayerName)}."));
+        });
         
         return HookResult.Continue;
     }

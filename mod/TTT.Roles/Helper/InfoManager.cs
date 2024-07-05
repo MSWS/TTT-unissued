@@ -52,6 +52,7 @@ public class InfoManager
 
     public void OnTickScoreboard()
     {
+        return;
         foreach (var player in _roleService.GetPlayers().Keys)
         {
             player.ModifyScoreBoard();
