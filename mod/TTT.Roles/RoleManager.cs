@@ -67,41 +67,24 @@ public class RoleManager : PlayerHandler, IRoleService, IPluginBehavior
                 
             }
 
-            if (info.BitsDamageType is 256)
-            {
-                if (attacker == null) return HookResult.Continue;
+            if (info.BitsDamageType is not 256) return HookResult.Continue;
+            if (attacker == null) return HookResult.Continue;
                 
-                info.Damage = 0;
+            info.Damage = 0;
                 
-                var targetRole = GetPlayer(playerWhoWasDamaged);
-            
-                Server.NextFrame(() =>
-                {
-                    attacker.PrintToChat(
-                        StringUtils.FormatTTT(
-                            $"You tased player {playerWhoWasDamaged.PlayerName} they are a {targetRole.PlayerRole().FormatRoleFull()}"));
-                });
-            
-                _roundService.GetLogsService().AddLog(new MiscAction("tased player " + targetRole.PlayerRole().FormatStringFullAfter(playerWhoWasDamaged.PlayerName), attacker));
-                
-                return HookResult.Stop;
-            }
+            var targetRole = GetPlayer(playerWhoWasDamaged);
             
             Server.NextFrame(() =>
             {
-                Server.PrintToChatAll("Damage: " + info.Damage + " Health: " + playerWhoWasDamaged.PlayerPawn.Value.Health);
+                attacker.PrintToChat(
+                    StringUtils.FormatTTT(
+                        $"You tased player {playerWhoWasDamaged.PlayerName} they are a {targetRole.PlayerRole().FormatRoleFull()}"));
             });
             
-            if (info.Damage < playerWhoWasDamaged.PlayerPawn.Value.Health) return HookResult.Continue;
-            
-            if (GetPlayer(playerWhoWasDamaged).IsDead()) return HookResult.Continue;
-            
-            GetPlayer(playerWhoWasDamaged).SetDead(true);
+            _roundService.GetLogsService().AddLog(new MiscAction("tased player " + targetRole.PlayerRole().FormatStringFullAfter(playerWhoWasDamaged.PlayerName), attacker));
+                
+            return HookResult.Stop;
 
-            
-            info.Damage = 0;
-            
-            return HookResult.Continue;
         }, HookMode.Pre);
 
     }
