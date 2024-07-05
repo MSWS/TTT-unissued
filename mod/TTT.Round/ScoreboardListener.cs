@@ -40,6 +40,14 @@ public static class ScoreboardListener
         player.Score = gamePlayer.Karma();
     } 
     
+    private static void KillIconTest(CCSPlayerController player)
+    {
+        var matchStats = player.ActionTrackingServices;
+        if (matchStats.NumRoundKills == 0) return;
+        matchStats.NumRoundKills = 0;
+        Utilities.SetStateChanged(player, "CCSPlayerController_ActionTrackingServices", "m_iNumRoundKills");
+    }
+    
     private static void RemoveKills(CCSPlayerController player)
     {
         var matchStats = player.ActionTrackingServices!.MatchStats;
