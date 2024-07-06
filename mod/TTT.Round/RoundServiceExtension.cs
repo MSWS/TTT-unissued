@@ -8,6 +8,7 @@ public static class RoundServiceExtension
 {
     public static void AddRoundService(this IServiceCollection collection)
     {
+        collection.AddConfig<RoundConfig>("round");
         collection.AddPluginBehavior<IRoundService, RoundBehavior>();
     }
 }

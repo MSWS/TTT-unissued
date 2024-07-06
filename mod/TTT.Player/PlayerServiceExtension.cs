@@ -9,7 +9,7 @@ public static class PlayerServiceExtension
 {
     public static void AddPlayerService(this IServiceCollection collection)
     {
-        collection.AddConfig<PlayerConfig>("player_config");
+        collection.AddConfig<PlayerConfig>("player");
         collection.AddPluginBehavior<IPlayerService, PlayerBehavior>();
         collection.AddPluginBehavior<KarmaManager>();
         collection.AddPluginBehavior<CreditManager>();

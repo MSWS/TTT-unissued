@@ -15,18 +15,10 @@ using TTT.Public.Mod.Round;
 
 namespace TTT.Round;
 
-public class RoundBehavior : IRoundService, IPluginBehavior
+public class RoundBehavior(IRoleService _roleService, RoundConfig config) : IRoundService, IPluginBehavior
 {
-    private readonly IRoleService _roleService;
     private Round? _round;
     private RoundStatus _roundStatus = RoundStatus.Paused;
-
-    public RoundBehavior(IRoleService roleService)
-    {
-        _roleService = roleService;
-        
-    }
-
     
     public void Start(BasePlugin plugin)
     {
@@ -49,7 +41,7 @@ public class RoundBehavior : IRoundService, IPluginBehavior
                 ForceEnd();
                 break;
             case RoundStatus.Waiting:
-                _round = new Round(_roleService);
+                _round = new Round(_roleService, config);
                 break;
             case RoundStatus.Started:
                 ForceStart();
@@ -66,7 +58,7 @@ public class RoundBehavior : IRoundService, IPluginBehavior
     {
         if (_round == null)
         {
-            _round = new Round(_roleService);
+            _round = new Round(_roleService, config);
             return;
         }
 
@@ -92,7 +84,9 @@ public class RoundBehavior : IRoundService, IPluginBehavior
     {
         foreach (var player in Utilities.GetPlayers().Where(player => player.IsReal()).Where(player => player.IsReal())
                      .ToList()) player.VoiceFlags = VoiceFlags.Normal;
-        _round!.Start(); 
+        _round!.Start();
+        ServerExtensions.GetGameRules().RoundTime = config.RoundTime;
+        Utilities.SetStateChanged(ServerExtensions.GetGameRulesProxy(), "CCSGameRulesProxy", "m_pGameRules");
     }
 
     public void ForceEnd()
