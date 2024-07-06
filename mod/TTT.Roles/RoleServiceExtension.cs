@@ -9,6 +9,8 @@ public static class RoleServiceExtension
 {
     public static void AddTTTRoles(this IServiceCollection collection)
     {
+        collection.AddConfig<RoleConfig>("roles");
+        
         collection.AddPluginBehavior<IRoleService, RoleBehavior>();
         collection.AddPluginBehavior<RolesCommand>();
     }

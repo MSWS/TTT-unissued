@@ -7,7 +7,7 @@ using TTT.Round;
 
 namespace TTT.Player;
 
-public class PlayerBehavior : IPlayerService, IPluginBehavior
+public class PlayerBehavior(PlayerConfig config) : IPlayerService, IPluginBehavior
 {
     
     public void Start(BasePlugin plugin)
@@ -33,7 +33,29 @@ public class PlayerBehavior : IPlayerService, IPluginBehavior
     public void CreatePlayer(CCSPlayerController player)
     {
         if (_players.ContainsKey(player)) return;
-        _players.Add(player, new GamePlayer(Role.Unassigned, 1000, 80, player.UserId.Value));
+        _players.Add(player, new GamePlayer(Role.Unassigned, config.StartCredits, config.StartKarma, player.UserId.Value));
+    }
+    
+    public void AddKarma(CCSPlayerController player, int karma)
+    {
+        if (!_players.TryGetValue(player, out var value)) return;
+        if (karma < 0) return;
+        
+        if (karma + value.Karma() > config.MaxKarma)
+            value.SetKarma(config.MaxKarma);
+        else
+            value.AddKarma(karma);
+    }
+    
+    public void RemoveKarma(CCSPlayerController player, int karma)
+    {
+        if (!_players.TryGetValue(player, out var value)) return;
+        if (karma < 0) return;
+        
+        if (value.Karma() - karma < config.MinKarma)
+            value.SetKarma(config.MinKarma);
+        else
+            value.RemoveKarma(karma);
     }
 
     public List<GamePlayer> Players()

@@ -51,14 +51,19 @@ public class GamePlayer
         return _karma;
     }
 
-    public void AddKarma()
+    public void SetKarma(int karma)
     {
-        _karma += 2;
+        _karma = karma;
+    }
+    
+    public void AddKarma(int karma)
+    {
+        _karma += karma;
     }
 
-    public void RemoveKarma()
+    public void RemoveKarma(int karma)
     {
-        _karma -= 5;
+        _karma -= karma;
         if (_karma >= 40) return;
         _karma = 80;
         //Server.ExecuteCommand($"css_ban #{_playerId} 1440 Karma too low");

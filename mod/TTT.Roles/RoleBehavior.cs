@@ -14,7 +14,7 @@ using TTT.Round;
 
 namespace TTT.Roles;
 
-public class RoleBehavior(IPlayerService service) : IRoleService, IPluginBehavior
+public class RoleBehavior(IPlayerService service, RoleConfig config) : IRoleService, IPluginBehavior
 {
     private const int MaxDetectives = 3;
 
@@ -143,8 +143,8 @@ public class RoleBehavior(IPlayerService service) : IRoleService, IPluginBehavio
             .Where(player => player.Team is not (CsTeam.Spectator or CsTeam.None))
             .ToList();
 
-        var traitorCount = (int)Math.Floor(Convert.ToDouble(eligible.Count / 3));
-        var detectiveCount = (int)Math.Floor(Convert.ToDouble(eligible.Count / 8));
+        var traitorCount = (int)Math.Floor(Convert.ToDouble(eligible.Count / config.TraitorRatio));
+        var detectiveCount = (int)Math.Floor(Convert.ToDouble(eligible.Count / config.DetectiveRatio));
 
         _traitorsLeft = traitorCount;
         _innocentsLeft = eligible.Count - traitorCount;
