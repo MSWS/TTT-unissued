@@ -78,6 +78,7 @@ public class InfoManager
 
             if (!player.PawnIsAlive && AdminManager.PlayerHasPermissions(player, "@css/kick"))
             {
+                continue;
                 if (player.ObserverPawn.Value == null || !player.ObserverPawn.Value.IsValid) continue;
                 if (player.ObserverPawn.Value.ObserverServices?.ObserverTarget.Value is null) continue;
                 var target = player.ObserverPawn.Value.ObserverServices.ObserverTarget.Value?.As<CCSPlayerController>();
