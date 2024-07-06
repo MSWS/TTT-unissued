@@ -5,7 +5,7 @@ using TTT.Public.Behaviors;
 using TTT.Public.Mod.Role;
 using TTT.Public.Player;
 
-namespace TTT.Roles;
+namespace TTT.Manager;
 
 public class ChatManager(IRoleService roleService) : IPluginBehavior
 {

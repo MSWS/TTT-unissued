@@ -2,16 +2,33 @@
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Utils;
+using TTT.Public.Behaviors;
 using TTT.Public.Extensions;
+using TTT.Public.Mod.Manager;
 
-namespace TTT.Roles;
+namespace TTT.Manager;
 
-public class MuteManager
+public class MuteManager : IMuteService, IPluginBehavior
 {
-
-    public MuteManager(BasePlugin plugin)
+    public void Start(BasePlugin plugin)
     {
         plugin.RegisterListener<Listeners.OnClientVoice>(OnPlayerSpeak);
+        plugin.RegisterEventHandler<EventPlayerDeath>(OnPlayerDeath);
+        plugin.RegisterEventHandler<EventRoundEnd>(OnRoundEnd);
+
+    }
+    
+    public HookResult OnPlayerDeath(EventPlayerDeath @event, GameEventInfo info)
+    {
+        if (@event.Userid == null) return HookResult.Continue;
+        Mute(@event.Userid);
+        return HookResult.Continue;
+    }
+    
+    public HookResult OnRoundEnd(EventRoundEnd @event, GameEventInfo info)
+    {
+        UnMuteAll();
+        return HookResult.Continue;
     }
     
     public void Mute(CCSPlayerController player)
@@ -38,7 +55,19 @@ public class MuteManager
             UnMute(player);
         }
     }
-    
+
+    public void MuteAll()
+    {
+        foreach (var player in Utilities.GetPlayers().Where(player => player.IsReal() && player.Team == CsTeam.Terrorist))
+        {
+            Mute(player);
+        }
+        foreach (var player in Utilities.GetPlayers().Where(player => player.IsReal() && player.Team == CsTeam.CounterTerrorist))
+        {
+            Mute(player);
+        }
+    }
+
     private void OnPlayerSpeak(int playerSlot)
     {
         var player = Utilities.GetPlayerFromSlot(playerSlot);

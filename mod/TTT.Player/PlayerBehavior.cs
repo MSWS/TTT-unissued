@@ -6,7 +6,7 @@ using TTT.Round;
 
 namespace TTT.Player;
 
-public class PlayerHandler : IPlayerService, IPluginBehavior
+public class PlayerBehavior : IPlayerService, IPluginBehavior
 {
     
     public void Start(BasePlugin plugin)

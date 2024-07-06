@@ -10,6 +10,8 @@ public class ModelHandler
     public static readonly string ModelPathTmHeavy = "characters\\models\\tm_phoenix_heavy\\tm_phoenix_heavy.vmdl";
     public static readonly string ModelPathTmPhoenix = "characters\\models\\tm_phoenix\\tm_phoenix.vmdl";
 
+    
+    
     public static void RegisterListener(BasePlugin plugin)
     {
         plugin.RegisterListener<Listeners.OnMapStart>(map =>
