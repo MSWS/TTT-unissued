@@ -14,7 +14,6 @@ public class GamePlayer : IInventory
     private int _karma;
     private long _credits;
     private CCSPlayerController? _killer;
-    private CRagdollProp? _ragdollProp;
     private readonly List<IShopItem> _items = [];
     private bool _shopOpen = false;
     private bool _isFound = false;
@@ -26,7 +25,6 @@ public class GamePlayer : IInventory
         _credits = credits;
         _karma = karma;
         _killer = null;
-        _ragdollProp = null;
         _playerId = playerId;
     }
 
@@ -121,16 +119,6 @@ public class GamePlayer : IInventory
     public void SetKiller(CCSPlayerController? killer)
     {
         _killer = killer;
-    }
-
-    public CRagdollProp? RagdollProp()
-    {
-        return _ragdollProp;
-    }
-
-    public void SetRagdollProp(CRagdollProp? prop)
-    {
-        _ragdollProp = prop;
     }
     
     public void SetShopOpen(bool open)

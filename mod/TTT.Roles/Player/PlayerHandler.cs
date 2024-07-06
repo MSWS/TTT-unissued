@@ -41,7 +41,6 @@ public class PlayerHandler : IPlayerService
         {
             player.SetKiller(null);
             player.SetPlayerRole(Role.Unassigned);
-            player.SetRagdollProp(null);
             player.ResetCredits();
             player.ModifyKarma();
             player.SetFound(false);
