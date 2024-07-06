@@ -2,6 +2,7 @@
 using System.Linq;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Core.Attributes.Registration;
 using TTT.Public.Action;
 using TTT.Public.Behaviors;
 using TTT.Public.Extensions;
@@ -16,13 +17,19 @@ public class LogBehavior : ILogService, IPluginBehavior
     
     public void Start(BasePlugin plugin)
     {
-        plugin.RegisterEventHandler<EventRoundEnd>(OnRoundEnd);
     }
     
-    public HookResult OnRoundEnd(EventRoundEnd @event, GameEventInfo info)
+    [GameEventHandler]
+    public HookResult OnRoundStart(EventRoundStart _, GameEventInfo __)
+    {
+        CreateRound(_round++);
+        return HookResult.Continue;
+    }
+    
+    [GameEventHandler]
+    public HookResult OnRoundEnd(EventRoundEnd _, GameEventInfo __)
     {
         PrintLogs(_round);
-        CreateRound(++_round);
         return HookResult.Continue;
     }
     
