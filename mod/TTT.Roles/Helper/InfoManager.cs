@@ -19,17 +19,16 @@ namespace TTT.Roles;
 public class InfoManager
 {
     private readonly Dictionary<CCSPlayerController, Tuple<CCSPlayerController, Role>> _playerLookAtRole = new();
-    private readonly RoleManager _roleService;
+    private readonly IPlayerService _playerService;
     private readonly IRoundService _manager;
     private readonly Dictionary<CCSPlayerController, Tuple<string, Role>> _spectatorLookAtRole = new();
 
-    public InfoManager(RoleManager roleService, IRoundService manager, BasePlugin plugin)
+    public InfoManager(IPlayerService playerService, IRoundService manager, BasePlugin plugin)
     {
-        _roleService = roleService;
+        _playerService = playerService;
         _manager = manager;
         plugin.RegisterListener<Listeners.OnTick>(OnTick);
         plugin.AddTimer(0.3f, OnTickAll, TimerFlags.REPEAT);
-        plugin.AddTimer(0.1f, OnTickScoreboard, TimerFlags.REPEAT);
 
         plugin.RegisterEventHandler<EventSpecTargetUpdated>(OnPlayerSpectateChange);
     }
@@ -50,19 +49,9 @@ public class InfoManager
         _playerLookAtRole.Remove(player);
     }
 
-    public void OnTickScoreboard()
-    {
-        return;
-        foreach (var player in _roleService.GetPlayers().Keys)
-        {
-            player.ModifyScoreBoard();
-        }
-    }
-    
-
     public void OnTick()
     {
-        foreach (var gamePlayer in _roleService.Players())
+        foreach (var gamePlayer in _playerService.Players())
         {
             if (_manager.GetRoundStatus() != RoundStatus.Started) return;
 
@@ -91,7 +80,7 @@ public class InfoManager
                 {
                     Server.NextFrame(() => player.PrintToCenterHtml(
                         $"<font class='fontsize=m' color='yellow'>Your Role: {playerRole.GetCenterRole()} <br>"
-                        + $"<font class='fontsize=m' color='yellow'>{target.PlayerName}'s Role: {_roleService.GetRole(target).GetCenterRole()}"));
+                        + $"<font class='fontsize=m' color='yellow'>{target.PlayerName}'s Role: {_playerService.GetPlayer(target).PlayerRole().GetCenterRole()}"));
                 }
                 
                 continue;
@@ -125,7 +114,7 @@ public class InfoManager
 
     public void OnTickAll()
     {
-        var players = _roleService.GetPlayers().Keys;
+        var players = _playerService.Players().Select(plr => plr.Player());
         
         _playerLookAtRole.Clear();
         
@@ -138,7 +127,7 @@ public class InfoManager
             if (target == null) continue;
             if (!target.IsReal()) continue;
             
-            RegisterLookAtRole(player, new Tuple<CCSPlayerController, Role>(target, _roleService.GetRole(target)));
+            RegisterLookAtRole(player, new Tuple<CCSPlayerController, Role>(target, _playerService.GetPlayer(target).PlayerRole()));
         }
     }
 
@@ -150,7 +139,7 @@ public class InfoManager
 
         if (!player.IsReal() || !target.IsReal()) return HookResult.Continue;
         
-        _spectatorLookAtRole.TryAdd(player, new Tuple<string, Role>(target.PlayerName, _roleService.GetRole(target)));
+        _spectatorLookAtRole.TryAdd(player, new Tuple<string, Role>(target.PlayerName, _playerService.GetPlayer(target).PlayerRole()));
         
         return HookResult.Continue;
     }

@@ -1,12 +1,19 @@
 ﻿using CounterStrikeSharp.API.Core;
+using TTT.Public.Behaviors;
 using TTT.Public.Mod.Role;
 using TTT.Public.Player;
 using TTT.Round;
 
 namespace TTT.Player;
 
-public class PlayerHandler : IPlayerService
+public class PlayerHandler : IPlayerService, IPluginBehavior
 {
+    
+    public void Start(BasePlugin plugin)
+    {
+        
+    }
+    
     private readonly Dictionary<CCSPlayerController, GamePlayer> _players = [];
     
     public Dictionary<CCSPlayerController, GamePlayer> GetPlayers()

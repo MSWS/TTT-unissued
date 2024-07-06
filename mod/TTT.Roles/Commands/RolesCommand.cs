@@ -9,15 +9,16 @@ using TTT.Public.Extensions;
 using TTT.Public.Formatting;
 using TTT.Public.Mod.Role;
 using TTT.Public.Mod.Round;
+using TTT.Public.Player;
 
 namespace TTT.Roles.Commands;
 
 public class RolesCommand : IPluginBehavior
 {
-    private readonly IRoleService _roleService;
+    private readonly IPlayerService _roleService;
     private readonly IRoundService _roundService;
 
-    public RolesCommand(IRoleService roleService, IRoundService roundService)
+    public RolesCommand(IPlayerService roleService, IRoundService roundService)
     {
         _roleService = roleService;
         _roundService = roundService;
@@ -47,7 +48,6 @@ public class RolesCommand : IPluginBehavior
         }
         
         sb.AppendLine(StringUtils.FormatTTT("End."));
-
         
         command.ReplyToCommand(sb.ToString());
     }

@@ -5,7 +5,7 @@ using TTT.Public.Extensions;
 
 namespace TTT.Round;
 
-public static class ScoreboardListener
+public static class ScoreboardExtension
 {
     public static void ModifyScoreBoard(this CCSPlayerController? player)
     {
