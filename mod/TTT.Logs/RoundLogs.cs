@@ -1,24 +1,25 @@
 ﻿using System.Text;
 using TTT.Public.Action;
 using TTT.Public.Mod.Logs;
+using Action = TTT.Public.Action.Action;
 
 namespace TTT.Logs;
 
 public class RoundLogs : IRoundLogs
 {
-    private readonly List<IAction> _logs = new();
+    private readonly List<Action> _logs = new();
     
-    public IList<IAction> GetLogs()
+    public IList<Action> GetLogs()
     {
         return _logs;
     }
 
-    public void AddLog(IAction action)
+    public void AddLog(Action action)
     {
         _logs.Add(action);
     }
 
-    public void RemoveLog(IAction action)
+    public void RemoveLog(Action action)
     {
         _logs.Remove(action);
     }

@@ -2,7 +2,7 @@
 
 namespace TTT.Public.Action;
 
-public class MiscAction : IAction
+public class MiscAction : Action
 {
     private readonly string _action;
     private readonly CCSPlayerController _actor;
@@ -13,12 +13,12 @@ public class MiscAction : IAction
         _actor = actor;
     }
 
-    public CCSPlayerController Actor()
+    public override CCSPlayerController Actor()
     {
         return _actor;
     }
 
-    public string ActionMessage()
+    public override string ActionMessage()
     {
         return _actor.PlayerName + " " +  _action;
     }

@@ -1,4 +1,5 @@
 ﻿using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Core.Attributes.Registration;
 using TTT.Public.Action;
 using TTT.Public.Behaviors;
 using TTT.Public.Extensions;
@@ -15,12 +16,23 @@ public class LogsListener(ILogService logService, IPlayerService playerService) 
         
     }
     
+    [GameEventHandler]
     public HookResult OnPlayerDamage(EventPlayerHurt @event, GameEventInfo info)
     {
+        var attackedPlayer = @event.Userid;
+        
+        if (attackedPlayer == null || !attackedPlayer.IsReal()) return HookResult.Continue;
+        
+        var attackedRole = playerService.GetPlayer(attackedPlayer).PlayerRole();
+
+        var attacker = @event.Attacker == null ? null : new Tuple<CCSPlayerController, Role>(@event.Attacker, playerService.GetPlayer(@event.Attacker).PlayerRole());
+        
+        logService.AddLog(new DamageAction(attacker,new Tuple<CCSPlayerController, Role>(attackedPlayer, attackedRole), @event.DmgHealth, ServerExtensions.GetGameRules().RoundTime));
         
         return HookResult.Continue;
     }
     
+    [GameEventHandler]
     public HookResult OnPlayerDeath(EventPlayerDeath @event, GameEventInfo info)
     {
         var killedPlayer = @event.Userid;

@@ -1,4 +1,5 @@
 ﻿using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Core.Attributes.Registration;
 using TTT.Public.Behaviors;
 using TTT.Public.Mod.Role;
 using TTT.Public.Player;
@@ -12,6 +13,14 @@ public class PlayerBehavior : IPlayerService, IPluginBehavior
     public void Start(BasePlugin plugin)
     {
         
+    }
+    
+    [GameEventHandler]
+    public HookResult OnPlayerConnectFull(EventPlayerConnectFull @event, GameEventInfo info)
+    {
+        if (@event.Userid == null) throw new NullReferenceException("Could not find player object when connecting.");
+        CreatePlayer(@event.Userid);
+        return HookResult.Continue;
     }
     
     private readonly Dictionary<CCSPlayerController, GamePlayer> _players = [];

@@ -34,8 +34,6 @@ public class InfoManager : IPluginBehavior
     {
         plugin.RegisterListener<Listeners.OnTick>(OnTick);
         plugin.AddTimer(0.1f, OnTickAll, TimerFlags.REPEAT);
-
-        plugin.RegisterEventHandler<EventSpecTargetUpdated>(OnPlayerSpectateChange);
     }
 
     public void Reset()

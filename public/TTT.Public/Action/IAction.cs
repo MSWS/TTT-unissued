@@ -3,10 +3,10 @@ using TTT.Public.Mod.Role;
 
 namespace TTT.Public.Action;
 
-public interface IAction
+public abstract class Action
 {
-    CCSPlayerController Actor();
-    string ActionMessage();
+    public abstract CCSPlayerController Actor();
+    public abstract string ActionMessage();
 
     protected static string GoodAction(Role actor, Role actor2)
     {

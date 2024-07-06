@@ -1,5 +1,6 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Utils;
 using TTT.Public.Behaviors;
@@ -13,11 +14,9 @@ public class MuteManager : IMuteService, IPluginBehavior
     public void Start(BasePlugin plugin)
     {
         plugin.RegisterListener<Listeners.OnClientVoice>(OnPlayerSpeak);
-        plugin.RegisterEventHandler<EventPlayerDeath>(OnPlayerDeath);
-        plugin.RegisterEventHandler<EventRoundEnd>(OnRoundEnd);
-
     }
-    
+
+    [GameEventHandler]
     public HookResult OnPlayerDeath(EventPlayerDeath @event, GameEventInfo info)
     {
         if (@event.Userid == null) return HookResult.Continue;
@@ -25,6 +24,7 @@ public class MuteManager : IMuteService, IPluginBehavior
         return HookResult.Continue;
     }
     
+    [GameEventHandler]
     public HookResult OnRoundEnd(EventRoundEnd @event, GameEventInfo info)
     {
         UnMuteAll();

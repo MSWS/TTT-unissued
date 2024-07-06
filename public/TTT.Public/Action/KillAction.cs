@@ -4,7 +4,7 @@ using TTT.Public.Mod.Role;
 
 namespace TTT.Public.Action;
 
-public class KillAction : IAction
+public class KillAction : Action
 {
     private readonly Tuple<CCSPlayerController, Role> _actor;
     private readonly Tuple<CCSPlayerController, Role> _attackedPlayer;
@@ -15,17 +15,17 @@ public class KillAction : IAction
         _attackedPlayer = attackedPlayer;
     }
 
-    public CCSPlayerController Actor()
+    public override CCSPlayerController Actor()
     {
         return _actor.Item1;
     }
 
-    public string ActionMessage()
+    public override string ActionMessage()
     {
         var actorRole = _actor.Item2;
         var attackedPlayerRole = _attackedPlayer.Item2;
         return $"[TTT] {actorRole.FormatStringFullAfter(" " + _actor.Item1.PlayerName)}" +
                $" killed {attackedPlayerRole.FormatStringFullAfter(" " + _attackedPlayer.Item1.PlayerName)}. " +
-               $"{IAction.GoodAction(actorRole, attackedPlayerRole)}";
+               $"{GoodAction(actorRole, attackedPlayerRole)}";
     }
 }

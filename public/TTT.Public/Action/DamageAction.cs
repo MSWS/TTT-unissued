@@ -4,11 +4,12 @@ using TTT.Public.Mod.Role;
 
 namespace TTT.Public.Action;
 
-public class DamageAction : IAction
+public class DamageAction : Action
 {
     private readonly Tuple<CCSPlayerController, Role>? _actor;
     private readonly Tuple<CCSPlayerController, Role> _attackedPlayer;
     private readonly int _damage;
+    private readonly int _roundTime;
 
     public DamageAction(Tuple<CCSPlayerController, Role>? actor, Tuple<CCSPlayerController, Role> attackedPlayer,
         int damage, int roundTime)
@@ -16,9 +17,10 @@ public class DamageAction : IAction
         _actor = actor;
         _attackedPlayer = attackedPlayer;
         _damage = damage;
+        _roundTime = roundTime;
     }
 
-    public CCSPlayerController Actor()
+    public override CCSPlayerController Actor()
     {
         return _actor.Item1;
     }
@@ -28,7 +30,7 @@ public class DamageAction : IAction
         return _actor?.Item2.FormatStringFullAfter(" " + _actor?.Item1.PlayerName) ?? "World";
     }
 
-    public string ActionMessage()
+    public override string ActionMessage()
     {
         
         var attackedPlayerRole = _attackedPlayer.Item2;

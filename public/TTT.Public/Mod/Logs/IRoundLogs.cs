@@ -4,8 +4,8 @@ namespace TTT.Public.Mod.Logs;
 
 public interface IRoundLogs
 {
-    IList<IAction> GetLogs();
-    void AddLog(IAction action);
-    void RemoveLog(IAction action);
+    IList<Action.Action> GetLogs();
+    void AddLog(Action.Action action);
+    void RemoveLog(Action.Action action);
     string FormattedLogs(int roundId);
 }

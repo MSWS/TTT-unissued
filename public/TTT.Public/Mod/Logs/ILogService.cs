@@ -5,7 +5,7 @@ namespace TTT.Public.Mod.Logs;
 
 public interface ILogService
 {
-    void AddLog(IAction action);
+    void AddLog(Action.Action action);
     bool PrintLogs(int round);
     bool PrintToPlayer(CCSPlayerController player, int round);
     bool PrintToConsole(int round);

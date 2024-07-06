@@ -26,12 +26,14 @@ public class RoleBehavior(IPlayerService service) : IRoleService, IPluginBehavio
     {
         ModelHandler.RegisterListener(parent);
        
+        /*
         parent.RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnect);
         parent.RegisterEventHandler<EventRoundFreezeEnd>(OnRoundStart);
         parent.RegisterEventHandler<EventRoundEnd>(OnRoundEnd);
         parent.RegisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
         parent.RegisterEventHandler<EventPlayerDeath>(OnPlayerDeath, HookMode.Pre);
         parent.RegisterEventHandler<EventGameStart>(OnMapStart);
+        */
     }
 
     [GameEventHandler]
@@ -58,9 +60,7 @@ public class RoleBehavior(IPlayerService service) : IRoleService, IPluginBehavio
         {
             _roundService.ForceEnd();
         }
-
-        service.CreatePlayer(@event.Userid);
-
+        
         return HookResult.Continue;
     }
 

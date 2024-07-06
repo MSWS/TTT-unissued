@@ -4,6 +4,7 @@ using TTT.Public.Action;
 using TTT.Public.Behaviors;
 using TTT.Public.Extensions;
 using TTT.Public.Mod.Logs;
+using Action = TTT.Public.Action.Action;
 
 namespace TTT.Logs;
 
@@ -25,7 +26,7 @@ public class LogBehavior : ILogService, IPluginBehavior
     
     private readonly Dictionary<int, IRoundLogs> _logs = new();
     
-    public void AddLog(IAction action)
+    public void AddLog(Action action)
     {
         _logs[_round].AddLog(action);
     }
