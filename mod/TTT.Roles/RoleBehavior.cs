@@ -37,7 +37,7 @@ public class RoleBehavior(IPlayerService service, RoleConfig config) : IRoleServ
     }
 
     [GameEventHandler]
-    private HookResult OnRoundStart(EventRoundFreezeEnd @event, GameEventInfo info)
+    public HookResult OnRoundStart(EventRoundFreezeEnd @event, GameEventInfo info)
     {
         _roundService.SetRoundStatus(RoundStatus.Waiting);
         foreach (var player in Utilities.GetPlayers().Where(player =>
@@ -53,7 +53,7 @@ public class RoleBehavior(IPlayerService service, RoleConfig config) : IRoleServ
     }
 
     [GameEventHandler]
-    private HookResult OnPlayerConnect(EventPlayerConnectFull @event, GameEventInfo info)
+    public HookResult OnPlayerConnect(EventPlayerConnectFull @event, GameEventInfo info)
     {
         if (Utilities.GetPlayers().Count(player =>
                 player.IsReal() && player.Team != CsTeam.None || player.Team == CsTeam.Spectator) < 3)
@@ -65,13 +65,7 @@ public class RoleBehavior(IPlayerService service, RoleConfig config) : IRoleServ
     }
 
     [GameEventHandler]
-    private HookResult OnMapStart(EventGameStart @event, GameEventInfo info)
-    {
-        return HookResult.Continue;
-    }
-
-    [GameEventHandler]
-    private HookResult OnPlayerDeath(EventPlayerDeath @event, GameEventInfo info)
+    public HookResult OnPlayerDeath(EventPlayerDeath @event, GameEventInfo info)
     {
         info.DontBroadcast = true;
 
@@ -111,7 +105,7 @@ public class RoleBehavior(IPlayerService service, RoleConfig config) : IRoleServ
     }
 
     [GameEventHandler]
-    private HookResult OnRoundEnd(EventRoundEnd @event, GameEventInfo info)
+    public HookResult OnRoundEnd(EventRoundEnd @event, GameEventInfo info)
     {
         var players = Utilities.GetPlayers()
             .Where(player => player.IsValid).Where(player => player.IsReal()).ToList();
@@ -124,7 +118,7 @@ public class RoleBehavior(IPlayerService service, RoleConfig config) : IRoleServ
     }
 
     [GameEventHandler]
-    private HookResult OnPlayerDisconnect(EventPlayerDisconnect @event, GameEventInfo info)
+    public HookResult OnPlayerDisconnect(EventPlayerDisconnect @event, GameEventInfo info)
     {
         var player = @event.Userid;
         Server.NextFrame(() =>
