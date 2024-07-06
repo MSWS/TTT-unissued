@@ -389,7 +389,7 @@ public class RoleManager : PlayerHandler, IRoleService, IPluginBehavior
 
     private Role GetWinner()
     {
-        return _traitorsLeft == 0 ? Role.Traitor : Role.Innocent;
+        return _traitorsLeft == 0 ? Role.Innocent : Role.Traitor;
     }
     
     private HookResult Event_PlayerSpawn(EventPlayerSpawn @event, GameEventInfo info)
