@@ -22,7 +22,9 @@ public class LogsCommand(ILogService service) : IPluginBehavior
     {
         var roundIdString = info.GetArg(1);
         
-        if (!int.TryParse(roundIdString, out var roundId))
+        var roundId = 0;
+        
+        if (!string.IsNullOrEmpty(roundIdString) || !int.TryParse(roundIdString, out roundId))
         {
             info.ReplyToCommand("Invalid round id");
         }

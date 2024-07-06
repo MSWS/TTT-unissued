@@ -12,6 +12,8 @@
     <ProjectReference Include="..\..\mod\TTT.Player\TTT.Player.csproj" />
     <ProjectReference Include="..\..\mod\TTT.Manager\TTT.Manager.csproj" />
     <ProjectReference Include="..\..\mod\TTT.Logs\TTT.Logs.csproj" />
+    <ProjectReference Include="..\..\mod\TTT.Round\TTT.Round.csproj" />
+
   </ItemGroup>
   
   <PropertyGroup>

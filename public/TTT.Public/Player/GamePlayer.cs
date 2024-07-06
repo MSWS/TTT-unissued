@@ -2,11 +2,10 @@
 using CounterStrikeSharp.API.Core;
 using TTT.Public.Mod.Role;
 using TTT.Public.Player;
-using TTT.Public.Shop;
 
 namespace TTT.Player;
 
-public class GamePlayer : IInventory
+public class GamePlayer
 {
 
     private Role _playerRole;
@@ -14,7 +13,6 @@ public class GamePlayer : IInventory
     private int _karma;
     private long _credits;
     private CCSPlayerController? _killer;
-    private readonly List<IShopItem> _items = [];
     private bool _shopOpen = false;
     private bool _isFound = false;
     private bool _isDead = false;
@@ -26,26 +24,6 @@ public class GamePlayer : IInventory
         _karma = karma;
         _killer = null;
         _playerId = playerId;
-    }
-
-    public void AddItem(IShopItem item)
-    {
-        _items.Add(item);
-    }
-
-    public void RemoveItem(string name)
-    {
-        _items.RemoveAll(shopItem => shopItem.Name().Equals(name));
-    }
-
-    public List<IShopItem> GetItems()
-    {
-        return _items;
-    }
-
-    public bool HasItem(string item)
-    {
-        return _items.Any(shopItem => shopItem.Name().Equals(item));
     }
 
     public bool IsDead()
