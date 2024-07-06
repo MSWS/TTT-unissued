@@ -4,6 +4,7 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
+using CounterStrikeSharp.API.Modules.Menu;
 using TTT.Public.Behaviors;
 using TTT.Public.Extensions;
 using TTT.Public.Formatting;
@@ -22,6 +23,11 @@ public class RolesCommand : IPluginBehavior
     {
         _roleService = roleService;
         _roundService = roundService;
+    }
+    
+    public void Start(BasePlugin plugin)
+    {
+        
     }
     
     [ConsoleCommand("css_roles", "Get the roles of all players")]

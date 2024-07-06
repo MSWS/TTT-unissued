@@ -11,8 +11,4 @@
     <ProjectReference Include="..\..\mod\TTT.Shop\TTT.Shop.csproj" />
 
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Player\" />
-    <Folder Include="Shop\" />
-  </ItemGroup>
 </Project>
