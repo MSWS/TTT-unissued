@@ -13,5 +13,6 @@ public static class PlayerServiceExtension
         collection.AddPluginBehavior<IPlayerService, PlayerBehavior>();
         collection.AddPluginBehavior<KarmaManager>();
         collection.AddPluginBehavior<CreditManager>();
+        collection.AddPluginBehavior<AntiBlockManager>();
     }
 }

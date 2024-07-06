@@ -44,7 +44,12 @@ public class RoleBehavior(IPlayerService service, RoleConfig config) : IRoleServ
                      player.IsReal() && player.Team != CsTeam.None || player.Team != CsTeam.Spectator))
         {
             player.RemoveWeapons();
-            player.GiveNamedItem("weapon_knife");
+            if (!string.IsNullOrEmpty(config.SecondaryWeapon))
+                player.GiveNamedItem(config.SecondaryWeapon);
+            
+            if (!string.IsNullOrEmpty(config.PrimaryWeapon))
+                player.GiveNamedItem(config.PrimaryWeapon);
+            
             player.GiveNamedItem("weapon_glock");
             service.GetPlayer(player).ModifyKarma();
         }
@@ -242,92 +247,3 @@ public class RoleBehavior(IPlayerService service, RoleConfig config) : IRoleServ
     }
 }
 
-/**
-    private HookResult Event_PlayerSpawn(EventPlayerSpawn @event, GameEventInfo info)
-    {
-        if (!@event.Userid.IsValid)
-        {
-            return HookResult.Continue;
-        }
-
-        CCSPlayerController player = @event.Userid;
-
-        if (!player.IsReal())
-        {
-            return HookResult.Continue;
-        }
-
-        if (!player.PlayerPawn.IsValid)
-        {
-            return HookResult.Continue;
-        }
-
-        CHandle<CCSPlayerPawn> pawn = player.PlayerPawn;
-
-        Server.NextFrame(() => PlayerSpawnNextFrame(player, pawn));
-
-        return HookResult.Continue;
-    }
- 
-private readonly WIN_LINUX<int> OnCollisionRulesChangedOffset = new(173, 172);
-
-    private void PlayerSpawnNextFrame(CCSPlayerController player, CHandle<CCSPlayerPawn> pawn)
-    {
-        pawn.Value.Collision.CollisionGroup = (byte)CollisionGroup.COLLISION_GROUP_DISSOLVING;
-
-        pawn.Value.Collision.CollisionAttribute.CollisionGroup = (byte)CollisionGroup.COLLISION_GROUP_DISSOLVING;
-
-        VirtualFunctionVoid<nint> collisionRulesChanged =
-            new VirtualFunctionVoid<nint>(pawn.Value.Handle, OnCollisionRulesChangedOffset.Get());
-
-        collisionRulesChanged.Invoke(pawn.Value.Handle);
-    }
-
-
-
-internal static class IsValid
-{
-    public static bool PlayerIndex(uint playerIndex)
-    {
-        if(playerIndex == 0)
-        {
-            return false;
-        }
-
-        if(!(1 <= playerIndex && playerIndex <= Server.MaxPlayers))
-        {
-            return false;
-        }
-
-        return true;
-    }
-}
-
-
-public class WIN_LINUX<T>
-{
-    [JsonPropertyName("Windows")]
-    public T Windows { get; private set; }
-
-    [JsonPropertyName("Linux")]
-    public T Linux { get; private set; }
-
-    public WIN_LINUX(T windows, T linux)
-    {
-        this.Windows = windows;
-        this.Linux = linux;
-    }
-
-    public T Get()
-    {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            return this.Windows;
-        }
-        else
-        {
-            return this.Linux;
-        }
-    }
-}
-*/

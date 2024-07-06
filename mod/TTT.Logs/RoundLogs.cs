@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Collections.Generic;
+using System.Text;
 using TTT.Public.Action;
 using TTT.Public.Mod.Logs;
 using Action = TTT.Public.Action.Action;
@@ -7,7 +8,7 @@ namespace TTT.Logs;
 
 public class RoundLogs : IRoundLogs
 {
-    private readonly List<Action> _logs = new();
+    private readonly List<Action> _logs = [];
     
     public IList<Action> GetLogs()
     {

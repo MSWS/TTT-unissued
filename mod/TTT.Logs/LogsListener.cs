@@ -1,4 +1,5 @@
-﻿using CounterStrikeSharp.API.Core;
+﻿using System;
+using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
 using TTT.Public.Action;
 using TTT.Public.Behaviors;
