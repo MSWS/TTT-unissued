@@ -18,7 +18,7 @@ public class LogsCommand(ILogService service) : IPluginBehavior
     
     [ConsoleCommand("css_logs", "Prints logs to console")]
     [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
-    public void Command_LastRequest(CCSPlayerController? executor, CommandInfo info)
+    public void Command_Logs(CCSPlayerController? executor, CommandInfo info)
     {
         var roundIdString = info.GetArg(1);
         
@@ -29,10 +29,17 @@ public class LogsCommand(ILogService service) : IPluginBehavior
         
         if (executor == null)
         {
-            service.PrintToConsole(roundId);
+            if (!service.PrintToConsole(roundId)) info.ReplyToCommand("No logs found for round " + roundId);
+            return;
+        }
+
+        if (!AdminManager.PlayerHasPermissions(executor, "@css/kick"))
+        {
+            info.ReplyToCommand("You do not have permission to execute this command");
             return;
         }
         
-        if (AdminManager.PlayerHasPermissions(executor, "@css/kick")) service.PrintToPlayer(executor, roundId);
+        if (!service.PrintToPlayer(executor, roundId)) info.ReplyToCommand("No logs found for round " + roundId);
+
     }
 }

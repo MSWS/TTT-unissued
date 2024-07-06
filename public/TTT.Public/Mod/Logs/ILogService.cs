@@ -5,9 +5,10 @@ namespace TTT.Public.Mod.Logs;
 
 public interface ILogService
 {
-    void AddLog(int round, IAction action);
-    void PrintLogs(int round);
-    void PrintToPlayer(CCSPlayerController player, int round);
-    void PrintToConsole(int round);
+    void AddLog(IAction action);
+    bool PrintLogs(int round);
+    bool PrintToPlayer(CCSPlayerController player, int round);
+    bool PrintToConsole(int round);
     IRoundLogs GetLogs(int round);
+    void CreateRound(int round);
 }

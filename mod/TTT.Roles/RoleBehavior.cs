@@ -24,10 +24,8 @@ public class RoleBehavior(IPlayerService service) : IRoleService, IPluginBehavio
 
     public void Start(BasePlugin parent)
     {
-        _roundService = new RoundManager(this, parent);
-       ModelHandler.RegisterListener(parent);
-
-
+        ModelHandler.RegisterListener(parent);
+       
         parent.RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnect);
         parent.RegisterEventHandler<EventRoundFreezeEnd>(OnRoundStart);
         parent.RegisterEventHandler<EventRoundEnd>(OnRoundEnd);

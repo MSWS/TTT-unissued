@@ -9,40 +9,60 @@ namespace TTT.Logs;
 
 public class LogBehavior : ILogService, IPluginBehavior
 {
+    private int _round = 1;
+    
     public void Start(BasePlugin plugin)
     {
-        
+        plugin.RegisterEventHandler<EventRoundEnd>(OnRoundEnd);
+    }
+    
+    public HookResult OnRoundEnd(EventRoundEnd @event, GameEventInfo info)
+    {
+        PrintLogs(_round);
+        CreateRound(++_round);
+        return HookResult.Continue;
     }
     
     private readonly Dictionary<int, IRoundLogs> _logs = new();
     
-    public void AddLog(int round, IAction action)
+    public void AddLog(IAction action)
     {
-        _logs[round].AddLog(action);
+        _logs[_round].AddLog(action);
     }
 
-    public void PrintLogs(int round)
+    public bool PrintLogs(int round)
     {
+        if (_logs.ContainsKey(round)) return false;
         foreach (var player in Utilities.GetPlayers().Where(plr => plr.IsReal()))
         {
             PrintToPlayer(player, round);
         }
         
         PrintToConsole(round);
+        return true;
     }
 
-    public void PrintToPlayer(CCSPlayerController player, int round)
+    public bool PrintToPlayer(CCSPlayerController player, int round)
     {
+        if (!_logs.ContainsKey(round)) return false;
         player.PrintToConsole(GetLogs(round).FormattedLogs(round));
+        return true;
     }
 
-    public void PrintToConsole(int round)
+    public bool PrintToConsole(int round)
     {
+        if (!_logs.ContainsKey(round)) return false;
         Server.PrintToConsole(GetLogs(round).FormattedLogs(round));
+        return true;
     }
 
     public IRoundLogs GetLogs(int round)
     {
         return _logs[round];
+    }
+    
+    public void CreateRound(int round)
+    {
+        _logs.Add(round, new RoundLogs());
     }
 }

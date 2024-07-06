@@ -6,11 +6,11 @@ namespace TTT.Public.Action;
 
 public class DamageAction : IAction
 {
-    private readonly Tuple<CCSPlayerController, Role> _actor;
+    private readonly Tuple<CCSPlayerController, Role>? _actor;
     private readonly Tuple<CCSPlayerController, Role> _attackedPlayer;
     private readonly int _damage;
 
-    public DamageAction(Tuple<CCSPlayerController, Role> actor, Tuple<CCSPlayerController, Role> attackedPlayer,
+    public DamageAction(Tuple<CCSPlayerController, Role>? actor, Tuple<CCSPlayerController, Role> attackedPlayer,
         int damage, int roundTime)
     {
         _actor = actor;
@@ -22,13 +22,18 @@ public class DamageAction : IAction
     {
         return _actor.Item1;
     }
+    
+    private string GetActorName()
+    {
+        return _actor?.Item2.FormatStringFullAfter(" " + _actor?.Item1.PlayerName) ?? "World";
+    }
 
     public string ActionMessage()
     {
-        var actorRole = _actor.Item2;
+        
         var attackedPlayerRole = _attackedPlayer.Item2;
-        return $"[TTT] {actorRole.FormatStringFullAfter(" " + _actor.Item1.PlayerName)}" +
+        return $"[TTT] {GetActorName()}" +
                $" damaged {attackedPlayerRole.FormatStringFullAfter(" " + _attackedPlayer.Item1.PlayerName)}" +
-               $" for {_damage} hp. {IAction.GoodAction(actorRole, attackedPlayerRole)}";
+               $" for {_damage} hp.";
     }
 }

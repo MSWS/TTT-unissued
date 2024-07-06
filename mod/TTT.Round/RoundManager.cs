@@ -7,6 +7,7 @@ using CounterStrikeSharp.API.Modules.Timers;
 using TTT.Public.Action;
 using TTT.Public.Extensions;
 using TTT.Public.Formatting;
+using TTT.Public.Mod.Logs;
 using TTT.Public.Mod.Role;
 using TTT.Public.Mod.Round;
 
@@ -15,14 +16,15 @@ namespace TTT.Round;
 public class RoundManager : IRoundService
 {
     private readonly IRoleService _roleService;
-    private readonly LogsListener _logs;
+    private readonly ILogService _logs;
     private Round? _round;
     private RoundStatus _roundStatus = RoundStatus.Paused;
+    private int _roundId = 1;
 
-    public RoundManager(IRoleService roleService, BasePlugin plugin)
+    public RoundManager(IRoleService roleService, ILogService service ,BasePlugin plugin)
     {
         _roleService = roleService;
-        _logs = new LogsListener(roleService, plugin, 1);
+        _logs = service;
         plugin.RegisterListener<Listeners.OnTick>(TickWaiting);
         
         plugin.AddCommandListener("jointeam", (player, info) =>
@@ -124,13 +126,8 @@ public class RoundManager : IRoundService
     {
         if (_roundStatus == RoundStatus.Ended) return;
         _roundStatus = RoundStatus.Ended;
-        _logs.IncrementRound();
+        _roundId++;
         Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules!.TerminateRound(5,
             RoundEndReason.RoundDraw);
-    }
-    
-    public ILogsService GetLogsService()
-    {
-        return _logs;
     }
 }
