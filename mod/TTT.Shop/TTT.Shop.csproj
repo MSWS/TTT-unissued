@@ -10,9 +10,5 @@
     <ItemGroup>
        <ProjectReference Include="..\..\public\TTT.Public\TTT.Public.csproj" />
     </ItemGroup>
-    
-    <ItemGroup>
-      <Folder Include="Items\All\" />
-    </ItemGroup>
 
 </Project>

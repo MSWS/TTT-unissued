@@ -4,31 +4,38 @@ using TTT.Public.Mod.Role;
 
 namespace TTT.Public.Action;
 
-public class DamageAction : IAction
+public class DamageAction : Action
 {
-    private readonly Tuple<CCSPlayerController, Role> _actor;
+    private readonly Tuple<CCSPlayerController, Role>? _actor;
     private readonly Tuple<CCSPlayerController, Role> _attackedPlayer;
     private readonly int _damage;
+    private readonly int _roundTime;
 
-    public DamageAction(Tuple<CCSPlayerController, Role> actor, Tuple<CCSPlayerController, Role> attackedPlayer,
+    public DamageAction(Tuple<CCSPlayerController, Role>? actor, Tuple<CCSPlayerController, Role> attackedPlayer,
         int damage, int roundTime)
     {
         _actor = actor;
         _attackedPlayer = attackedPlayer;
         _damage = damage;
+        _roundTime = roundTime;
     }
 
-    public CCSPlayerController Actor()
+    public override CCSPlayerController Actor()
     {
         return _actor.Item1;
     }
-
-    public string ActionMessage()
+    
+    private string GetActorName()
     {
-        var actorRole = _actor.Item2;
+        return _actor?.Item2.FormatStringFullAfter(" " + _actor?.Item1.PlayerName) ?? "World";
+    }
+
+    public override string ActionMessage()
+    {
+        
         var attackedPlayerRole = _attackedPlayer.Item2;
-        return $"[TTT] {actorRole.FormatStringFullAfter(" " + _actor.Item1.PlayerName)}" +
+        return $"[TTT] {GetActorName()}" +
                $" damaged {attackedPlayerRole.FormatStringFullAfter(" " + _attackedPlayer.Item1.PlayerName)}" +
-               $" for {_damage} hp. {IAction.GoodAction(actorRole, attackedPlayerRole)}";
+               $" for {_damage} hp.";
     }
 }
