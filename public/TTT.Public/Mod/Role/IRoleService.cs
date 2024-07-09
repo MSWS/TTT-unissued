@@ -1,12 +1,14 @@
 using CounterStrikeSharp.API.Core;
+using TTT.Public.Mod.Round;
 using TTT.Public.Player;
 
 namespace TTT.Public.Mod.Role;
 
-public interface IRoleService : IPlayerService
+public interface IRoleService
 {
     Role GetRole(CCSPlayerController player);
     void AddRoles();
+    IRoundService GetRoundService();
     ISet<CCSPlayerController> GetTraitors();
     ISet<CCSPlayerController> GetDetectives();
     ISet<CCSPlayerController> GetInnocents();
@@ -15,7 +17,6 @@ public interface IRoleService : IPlayerService
     void AddDetective(CCSPlayerController player);
     void AddTraitor(CCSPlayerController player);
     void AddInnocents(IEnumerable<CCSPlayerController> players);
-    public void ApplyColorFromRole(CCSPlayerController player, Role role);
     void Clear();
 }
 

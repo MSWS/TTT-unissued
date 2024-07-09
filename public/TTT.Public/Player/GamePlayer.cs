@@ -2,11 +2,10 @@
 using CounterStrikeSharp.API.Core;
 using TTT.Public.Mod.Role;
 using TTT.Public.Player;
-using TTT.Public.Shop;
 
 namespace TTT.Player;
 
-public class GamePlayer : IInventory
+public class GamePlayer
 {
 
     private Role _playerRole;
@@ -14,8 +13,6 @@ public class GamePlayer : IInventory
     private int _karma;
     private long _credits;
     private CCSPlayerController? _killer;
-    private CRagdollProp? _ragdollProp;
-    private readonly List<IShopItem> _items = [];
     private bool _shopOpen = false;
     private bool _isFound = false;
     private bool _isDead = false;
@@ -26,28 +23,7 @@ public class GamePlayer : IInventory
         _credits = credits;
         _karma = karma;
         _killer = null;
-        _ragdollProp = null;
         _playerId = playerId;
-    }
-
-    public void AddItem(IShopItem item)
-    {
-        _items.Add(item);
-    }
-
-    public void RemoveItem(string name)
-    {
-        _items.RemoveAll(shopItem => shopItem.Name().Equals(name));
-    }
-
-    public List<IShopItem> GetItems()
-    {
-        return _items;
-    }
-
-    public bool HasItem(string item)
-    {
-        return _items.Any(shopItem => shopItem.Name().Equals(item));
     }
 
     public bool IsDead()
@@ -75,14 +51,19 @@ public class GamePlayer : IInventory
         return _karma;
     }
 
-    public void AddKarma()
+    public void SetKarma(int karma)
     {
-        _karma += 2;
+        _karma = karma;
+    }
+    
+    public void AddKarma(int karma)
+    {
+        _karma += karma;
     }
 
-    public void RemoveKarma()
+    public void RemoveKarma(int karma)
     {
-        _karma -= 5;
+        _karma -= karma;
         if (_karma >= 40) return;
         _karma = 80;
         //Server.ExecuteCommand($"css_ban #{_playerId} 1440 Karma too low");
@@ -121,16 +102,6 @@ public class GamePlayer : IInventory
     public void SetKiller(CCSPlayerController? killer)
     {
         _killer = killer;
-    }
-
-    public CRagdollProp? RagdollProp()
-    {
-        return _ragdollProp;
-    }
-
-    public void SetRagdollProp(CRagdollProp? prop)
-    {
-        _ragdollProp = prop;
     }
     
     public void SetShopOpen(bool open)

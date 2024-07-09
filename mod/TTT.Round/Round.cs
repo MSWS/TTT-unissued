@@ -12,11 +12,16 @@ namespace TTT.Round;
 public class Round
 {
     private readonly IRoleService _roleService;
-    private float _graceTime = Config.TTTConfig.GraceTime * 64;
+    private readonly RoundConfig? _config;
+    private float _graceTime = 20;
+    private readonly int _roundId;
 
-    public Round(IRoleService roleService)
+    public Round(IRoleService roleService, RoundConfig? config, int roundId)
     {
         _roleService = roleService;
+        _config = config;
+        _graceTime = 20;
+        _roundId = roundId;
     }
 
     public void Tick()
@@ -53,7 +58,7 @@ public class Round
         }
         
         _roleService.AddRoles();
-        Server.NextFrame(() => Server.PrintToChatAll(StringUtils.FormatTTT($"A new round has started! {_roleService.GetTraitors().Count} traitors.")));
+        Server.NextFrame(() => Server.PrintToChatAll(StringUtils.FormatTTT($"Round #{_roundId} has started! {_roleService.GetTraitors().Count} traitors.")));
         SendTraitorMessage();
         SendDetectiveMessage();
         SendInnocentMessage();
