@@ -51,7 +51,27 @@ public static class PlayerExtensions
             return target.As<CCSObserverPawn>().OriginalController.Value;
         }
 
-        return null;}
+        return null;
+    }
+    
+    public static CBaseDoor? GetClientPlayerTraitorRoom(this CCSPlayerController player)
+    {
+        var GameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").FirstOrDefault()?.GameRules;
+
+        if (GameRules is null)
+            return null;
+
+        VirtualFunctionWithReturn<IntPtr, IntPtr, IntPtr> findPickerEntity = new(GameRules.Handle, 28);
+        var target = new CBaseEntity(findPickerEntity.Invoke(GameRules.Handle, player.Handle));
+
+        if (target.DesignerName is "func_door" || target.DesignerName is "prop_door_rotating")
+        {
+            return target.As<CBaseDoor>();
+        }
+
+        return null;
+    }
+
     
     public static bool IsReal(this CCSPlayerController player)
     {

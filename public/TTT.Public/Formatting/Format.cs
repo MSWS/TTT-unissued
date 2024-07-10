@@ -63,4 +63,16 @@ public static class Format
             _ => ""
         };
     }
+
+    public static Color GetColor(this Role role)
+    {   
+        return role switch
+        {
+            Role.Traitor => Color.Red,
+            Role.Detective => Color.Blue,
+            Role.Innocent => Color.Lime,
+            Role.Unassigned => Color.DarkGray,
+            _ => Color.Black
+        };
+    }
 }
