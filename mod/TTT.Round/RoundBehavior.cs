@@ -71,7 +71,7 @@ public class RoundBehavior(IRoleService _roleService) : IRoundService
         if (_round.GraceTime() != 0) return;
         
         
-        if (Utilities.GetPlayers().Where(player => player is { IsValid: true, PawnIsAlive: true }).ToList().Count <= 0)
+        if (Utilities.GetPlayers().Where(player => player is { IsValid: true, PawnIsAlive: true }).ToList().Count <= 2)
         {
             Server.PrintToChatAll(StringUtils.FormatTTT("Not enough players to start the round. Round has been ended."));
             _roundStatus = RoundStatus.Paused;
@@ -101,7 +101,6 @@ public class RoundBehavior(IRoleService _roleService) : IRoundService
 
     private void EndRound()
     {
-        return;
         if (_roundStatus == RoundStatus.Started && Utilities.GetPlayers().Count(player => player.PawnIsAlive) == 1)
         {
             ForceEnd();
