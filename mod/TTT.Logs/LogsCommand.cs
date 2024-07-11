@@ -32,7 +32,7 @@ public class LogsCommand(ILogService service) : IPluginBehavior
         
         var roundId = service.GetCurrentRound();
         
-        if (!int.TryParse(roundIdString, out roundId))
+        if (string.IsNullOrEmpty(roundIdString) && !int.TryParse(roundIdString, out roundId))
         {
             info.ReplyToCommand(StringUtils.FormatTTT("Invalid round id, /logs <roundId>"));
             return;
