@@ -63,7 +63,7 @@ public class RoleBehavior : IRoleService, IPluginBehavior
             if (!string.IsNullOrEmpty(string.Empty))
                 player.GiveNamedItem(string.Empty);
             
-            player.GiveNamedItem("weapon_glock");
+            player.GiveNamedItem("weapon_knife");
             service.GetPlayer(player).ModifyKarma();
         }
 
