@@ -31,7 +31,7 @@ public class KarmaManager(IPlayerService playerService) : IPluginBehavior
         if (killerRole == killedRole)
         {
             gpKiller.RemoveKarma(5);
-            return HookResult.Stop;
+            return HookResult.Continue;
         }
         
         if (killedRole == Role.Traitor)
