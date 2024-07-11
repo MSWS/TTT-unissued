@@ -107,8 +107,6 @@ public class RoleBehavior : IRoleService, IPluginBehavior
 
         if (_traitorsLeft == 0 || _innocentsLeft == 0) Server.NextFrame(() => _roundService.ForceEnd());
 
-        Server.NextFrame(() => playerWhoWasDamaged.CommitSuicide(false, true));
-
         Server.NextFrame(() =>
         {
             Server.PrintToChatAll(
