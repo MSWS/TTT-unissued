@@ -13,14 +13,14 @@ public class Round
 {
     private readonly IRoleService _roleService;
     private readonly RoundConfig? _config;
-    private float _graceTime = 20;
+    private float _graceTime = 20 * 64;
     private readonly int _roundId;
 
     public Round(IRoleService roleService, RoundConfig? config, int roundId)
     {
         _roleService = roleService;
         _config = config;
-        _graceTime = 20;
+        _graceTime = 20 * 64;
         _roundId = roundId;
     }
 
