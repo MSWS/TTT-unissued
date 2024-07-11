@@ -63,7 +63,7 @@ public class RoleBehavior : IRoleService, IPluginBehavior
             if (!string.IsNullOrEmpty(string.Empty))
                 player.GiveNamedItem(string.Empty);
             
-            player.GiveNamedItem("weapon_glock");
+            player.GiveNamedItem("weapon_knife");
             service.GetPlayer(player).ModifyKarma();
         }
 
@@ -106,8 +106,6 @@ public class RoleBehavior : IRoleService, IPluginBehavior
         if (IsDetective(playerWhoWasDamaged) || IsInnocent(playerWhoWasDamaged)) _innocentsLeft--;
 
         if (_traitorsLeft == 0 || _innocentsLeft == 0) Server.NextFrame(() => _roundService.ForceEnd());
-
-        Server.NextFrame(() => playerWhoWasDamaged.CommitSuicide(false, true));
 
         Server.NextFrame(() =>
         {
