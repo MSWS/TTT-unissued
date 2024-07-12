@@ -82,7 +82,7 @@ public class RoleBehavior : IRoleService, IPluginBehavior
         return HookResult.Continue;
     }
 
-    [GameEventHandler]
+    [GameEventHandler(HookMode.Pre)]
     public HookResult OnPlayerDeath(EventPlayerDeath @event, GameEventInfo info)
     {
         info.DontBroadcast = true;
