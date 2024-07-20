@@ -42,6 +42,7 @@ public class Round {
 
   public void Start() {
     foreach (var player in Utilities.GetPlayers()
+     .Where(player => player.IsReal())
      .Where(player => !player.PawnIsAlive)
      .Where(player
         => player.Team is CsTeam.Terrorist or CsTeam.CounterTerrorist))

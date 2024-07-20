@@ -1,6 +1,5 @@
 ﻿using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.DependencyInjection;
-using TTT.Debug;
 using TTT.Detective;
 using TTT.Logs;
 using TTT.Manager;
@@ -16,6 +15,5 @@ public class TTTServiceCollection : IPluginServiceCollection<TTTPlugin> {
     serviceCollection.AddDetectiveBehavior();
     serviceCollection.AddLogsService();
     serviceCollection.AddManagerService();
-    serviceCollection.AddDebugBehavior();
   }
 }

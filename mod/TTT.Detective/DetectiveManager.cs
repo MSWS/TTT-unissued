@@ -18,6 +18,7 @@ public class DetectiveManager(IPlayerService roleService)
   public void Start(BasePlugin parent) {
     parent.RegisterListener<Listeners.OnTick>(() => {
       foreach (var player in Utilities.GetPlayers()
+       .Where(player => player.IsValid && player.IsReal())
        .Where(player => (player.Buttons & PlayerButtons.Use) != 0))
         OnPlayerUse(player);
     });
@@ -62,11 +63,15 @@ public class DetectiveManager(IPlayerService roleService)
   private void OnPlayerUse(CCSPlayerController player) { IdentifyBody(player); }
 
   private void IdentifyBody(CCSPlayerController caller) {
-    // if (roleService.GetPlayer(caller).PlayerRole() != Role.Detective) return;
+    //add states
+
+    if (roleService.GetPlayer(caller).PlayerRole() != Role.Detective) return;
 
     var entity = caller.GetClientRagdollAimTarget();
 
-    if (entity == null || !entity.PawnIsAlive) return;
+    if (entity == null) return;
+
+    if (entity.PawnIsAlive) return;
 
     var player = roleService.GetPlayer(entity);
 
@@ -90,6 +95,7 @@ public class DetectiveManager(IPlayerService roleService)
          .PlayerRole()
          .FormatStringFullAfter(killerEntity.PlayerName));
 
+
     player.SetFound(true);
 
     Server.NextFrame(() => { Server.PrintToChatAll(message); });
@@ -111,7 +117,9 @@ public class DetectiveManager(IPlayerService roleService)
     if (player_pawn == null || !player_pawn.IsValid) return null;
 
     // controller valid
-    if (player_pawn.OriginalController is not { IsValid: true }) return null;
+    if (player_pawn.OriginalController == null
+      || !player_pawn.OriginalController.IsValid)
+      return null;
 
     // any further validity is up to the caller
     return player_pawn.OriginalController.Value;
