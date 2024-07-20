@@ -2,6 +2,4 @@
 
 namespace TTT.Formatting.Languages;
 
-public class English : IDialect
-{
-}
+public class English : IDialect { }

@@ -1,5 +1,3 @@
 ﻿namespace TTT.Public.Action;
 
-public class ShopAction
-{
-}
+public class ShopAction { }
