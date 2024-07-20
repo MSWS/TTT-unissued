@@ -18,41 +18,32 @@ public class RoleBehavior : IRoleService, IPluginBehavior {
   private const int MaxDetectives = 3;
   private readonly IPlayerService service;
 
-  private int _innocentsLeft;
-  private readonly IRoundService _roundService;
-  private int _traitorsLeft;
+  private int innocentsLeft;
+  private readonly IRoundService roundService;
+  private int traitorsLeft;
 
   public RoleBehavior(IPlayerService playerService) {
-    _roundService = new RoundBehavior(this);
-    service       = playerService;
+    roundService = new RoundBehavior(this);
+    service      = playerService;
   }
 
   public void Start(BasePlugin parent) {
     ModelHandler.RegisterListener(parent);
-    _roundService.Start(parent);
-    /*
-    parent.RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnect);
-    parent.RegisterEventHandler<EventRoundFreezeEnd>(OnRoundStart);
-    parent.RegisterEventHandler<EventRoundEnd>(OnRoundEnd);
-    parent.RegisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
-    parent.RegisterEventHandler<EventPlayerDeath>(OnPlayerDeath, HookMode.Pre);
-    parent.RegisterEventHandler<EventGameStart>(OnMapStart);
-    */
+    roundService.Start(parent);
   }
 
-  public IRoundService GetRoundService() { return _roundService; }
+  public IRoundService GetRoundService() { return roundService; }
 
   public void AddRoles() {
     var eligible = Utilities.GetPlayers()
-     .Where(player => player.IsReal())
      .Where(player => player.Team is not (CsTeam.Spectator or CsTeam.None))
      .ToList();
 
     var traitorCount   = (int)Math.Floor(Convert.ToDouble(eligible.Count / 3));
     var detectiveCount = (int)Math.Floor(Convert.ToDouble(eligible.Count / 8));
 
-    _traitorsLeft  = traitorCount;
-    _innocentsLeft = eligible.Count - traitorCount;
+    traitorsLeft  = traitorCount;
+    innocentsLeft = eligible.Count - traitorCount;
 
     if (detectiveCount > MaxDetectives) detectiveCount = MaxDetectives;
 
@@ -68,62 +59,62 @@ public class RoleBehavior : IRoleService, IPluginBehavior {
       AddDetective(chosen);
     }
 
-    AddInnocents(eligible);
+    AddInnocents(eligible.ToArray());
   }
 
   public ISet<CCSPlayerController> GetTraitors() {
-    return service.Players()
-     .Where(player => player.PlayerRole() == Role.Traitor)
-     .Select(player => player.Player())
-     .ToHashSet();
+    return GetByRole(Role.Traitor);
   }
 
   public ISet<CCSPlayerController> GetDetectives() {
-    return service.Players()
-     .Where(player => player.PlayerRole() == Role.Detective)
-     .Select(player => player.Player())
-     .ToHashSet();
+    return GetByRole(Role.Detective);
   }
 
   public ISet<CCSPlayerController> GetInnocents() {
-    return service.Players()
-     .Where(player => player.PlayerRole() == Role.Innocent)
-     .Select(player => player.Player())
-     .ToHashSet();
+    return GetByRole(Role.Innocent);
   }
 
+  public ISet<CCSPlayerController> GetByRole(Role role) {
+    return service.Players()
+     .Where(player => player.PlayerRole() == role)
+     .Select(player => player.Player())
+     .Where(p => p != null)
+     .ToHashSet()!;
+  }
 
   public Role GetRole(CCSPlayerController player) {
     return service.GetPlayer(player).PlayerRole();
   }
 
-  public void AddTraitor(CCSPlayerController player) {
-    service.GetPlayer(player).SetPlayerRole(Role.Traitor);
-    player.SwitchTeam(CsTeam.Terrorist);
-    player.PrintToCenter(
-      Role.Traitor.FormatStringFullBefore("You are now a(n)"));
-    player.PrintToChat(Role.Traitor.FormatStringFullBefore("You are now a(n)"));
-    ModelHandler.SetModelNextServerFrame(player,
-      ModelHandler.ModelPathTmPhoenix);
+  public void AddTraitor(params CCSPlayerController[] players) {
+    foreach (var player in players) {
+      service.GetPlayer(player).SetPlayerRole(Role.Traitor);
+      player.SwitchTeam(CsTeam.Spectator);
+      player.PrintToCenter(
+        Role.Traitor.FormatStringFullBefore("You are now a"));
+      player.PrintToChat(Role.Traitor.FormatStringFullBefore("You are now a"));
+      ModelHandler.SetModel(player, ModelHandler.ModelPathTmPhoenix);
+    }
   }
 
-  public void AddDetective(CCSPlayerController player) {
-    service.GetPlayer(player).SetPlayerRole(Role.Detective);
-    player.SwitchTeam(CsTeam.CounterTerrorist);
-    player.PrintToCenter(
-      Role.Detective.FormatStringFullBefore("You are now a(n)"));
-    player.GiveNamedItem(CsItem.Taser);
-    ModelHandler.SetModelNextServerFrame(player, ModelHandler.ModelPathCtmSas);
+  public void AddDetective(params CCSPlayerController[] players) {
+    foreach (var player in players) {
+      service.GetPlayer(player).SetPlayerRole(Role.Detective);
+      player.SwitchTeam(CsTeam.CounterTerrorist);
+      player.PrintToCenter(
+        Role.Detective.FormatStringFullBefore("You are now a"));
+      player.GiveNamedItem(CsItem.Taser);
+      ModelHandler.SetModel(player, ModelHandler.ModelPathCtmSas);
+    }
   }
 
-  public void AddInnocents(IEnumerable<CCSPlayerController> players) {
+  public void AddInnocents(params CCSPlayerController[] players) {
     foreach (var player in players) {
       service.GetPlayer(player).SetPlayerRole(Role.Innocent);
       player.PrintToCenter(
         Role.Innocent.FormatStringFullBefore("You are now an"));
-      player.SwitchTeam(CsTeam.Terrorist);
-      ModelHandler.SetModelNextServerFrame(player,
-        ModelHandler.ModelPathTmPhoenix);
+      player.SwitchTeam(CsTeam.Spectator);
+      ModelHandler.SetModel(player, ModelHandler.ModelPathTmPhoenix);
     }
   }
 
@@ -140,24 +131,19 @@ public class RoleBehavior : IRoleService, IPluginBehavior {
     foreach (var key in service.Players()) {
       key.SetPlayerRole(Role.Unassigned);
       if (key.Player() == null) continue;
-      RemoveColor(key.Player());
+      RemoveColor(key.Player()!);
     }
   }
 
   [GameEventHandler]
   public HookResult
     OnRoundStart(EventRoundFreezeEnd @event, GameEventInfo info) {
-    _roundService.SetRoundStatus(RoundStatus.Waiting);
+    roundService.SetRoundStatus(RoundStatus.Waiting);
     foreach (var player in Utilities.GetPlayers()
      .Where(player => player.IsReal() && player.Team != CsTeam.None
         || player.Team != CsTeam.Spectator)) {
       player.RemoveWeapons();
-      if (!string.IsNullOrEmpty("weapon_glock"))
-        player.GiveNamedItem("weapon_glock");
-
-      if (!string.IsNullOrEmpty(string.Empty))
-        player.GiveNamedItem(string.Empty);
-
+      player.GiveNamedItem("weapon_glock");
       player.GiveNamedItem("weapon_knife");
       service.GetPlayer(player).ModifyKarma();
     }
@@ -168,10 +154,8 @@ public class RoleBehavior : IRoleService, IPluginBehavior {
   [GameEventHandler]
   public HookResult OnPlayerConnect(EventPlayerConnectFull @event,
     GameEventInfo info) {
-    if (Utilities.GetPlayers()
-     .Count(player => player.IsReal() && player.Team != CsTeam.None
-        || player.Team == CsTeam.Spectator) < 3)
-      _roundService.ForceEnd();
+    if (Utilities.GetPlayers().Count(player => player.PawnIsAlive) < 3)
+      roundService.ForceEnd();
 
     return HookResult.Continue;
   }
@@ -183,36 +167,32 @@ public class RoleBehavior : IRoleService, IPluginBehavior {
     var playerWhoWasDamaged = @event.Userid;
     var attacker            = @event.Attacker;
 
-
     if (playerWhoWasDamaged == null) return HookResult.Continue;
 
     SetColor(playerWhoWasDamaged);
-
     playerWhoWasDamaged.ModifyScoreBoard();
 
     service.GetPlayer(playerWhoWasDamaged).SetKiller(attacker);
 
-    if (IsTraitor(playerWhoWasDamaged)) _traitorsLeft--;
-
+    if (IsTraitor(playerWhoWasDamaged)) traitorsLeft--;
     if (IsDetective(playerWhoWasDamaged) || IsInnocent(playerWhoWasDamaged))
-      _innocentsLeft--;
+      innocentsLeft--;
 
-    if (_traitorsLeft == 0 || _innocentsLeft == 0)
-      Server.NextFrame(() => _roundService.ForceEnd());
+    if (traitorsLeft == 0 || innocentsLeft == 0)
+      Server.NextFrame(() => roundService.ForceEnd());
 
-    Server.NextFrame(() => {
-      Server.PrintToChatAll(StringUtils.FormatTTT(
-        $"{GetRole(playerWhoWasDamaged).FormatStringFullAfter(" has been found.")}"));
+    // Server.PrintToChatAll(StringUtils.FormatTTT(
+    //   $"{GetRole(playerWhoWasDamaged).FormatStringFullAfter(" has been found.")}"));
 
-      if (attacker == playerWhoWasDamaged || attacker == null) return;
+    if (attacker == playerWhoWasDamaged || attacker == null)
+      return HookResult.Continue;
 
-      attacker.ModifyScoreBoard();
+    attacker.ModifyScoreBoard();
 
-      playerWhoWasDamaged.PrintToChat(StringUtils.FormatTTT(
-        $"You were killed by {GetRole(attacker).FormatStringFullAfter(" " + attacker.PlayerName)}."));
-      attacker.PrintToChat(StringUtils.FormatTTT(
-        $"You killed {GetRole(playerWhoWasDamaged).FormatStringFullAfter(" " + playerWhoWasDamaged.PlayerName)}."));
-    });
+    playerWhoWasDamaged.PrintToChat(StringUtils.FormatTTT(
+      $"You were killed by {GetRole(attacker).FormatStringFullAfter(" " + attacker.PlayerName)}."));
+    attacker.PrintToChat(StringUtils.FormatTTT(
+      $"You killed {GetRole(playerWhoWasDamaged).FormatStringFullAfter(" " + playerWhoWasDamaged.PlayerName)}."));
 
     return HookResult.Continue;
   }
@@ -221,14 +201,12 @@ public class RoleBehavior : IRoleService, IPluginBehavior {
   public HookResult OnRoundEnd(EventRoundEnd @event, GameEventInfo info) {
     var players = Utilities.GetPlayers()
      .Where(player => player.IsValid)
-     .Where(player => player.IsReal())
      .ToList();
 
     foreach (var player in players)
       player.PrintToCenter(GetWinner().FormatStringFullAfter("s has won!"));
 
-    Server.NextFrame(Clear);
-
+    Clear();
     return HookResult.Continue;
   }
 
@@ -236,11 +214,10 @@ public class RoleBehavior : IRoleService, IPluginBehavior {
   public HookResult OnPlayerDisconnect(EventPlayerDisconnect @event,
     GameEventInfo info) {
     var player = @event.Userid;
-    Server.NextFrame(() => {
-      service.RemovePlayer(player);
-      if (service.Players().Count == 0)
-        _roundService.SetRoundStatus(RoundStatus.Paused);
-    });
+    if (player == null) return HookResult.Continue;
+    service.RemovePlayer(player);
+    if (service.Players().Count == 0)
+      roundService.SetRoundStatus(RoundStatus.Paused);
 
     return HookResult.Continue;
   }
@@ -250,7 +227,7 @@ public class RoleBehavior : IRoleService, IPluginBehavior {
   }
 
   private Role GetWinner() {
-    return _traitorsLeft == 0 ? Role.Traitor : Role.Innocent;
+    return traitorsLeft == 0 ? Role.Traitor : Role.Innocent;
   }
 
   public void SetColor(CCSPlayerController player) {
