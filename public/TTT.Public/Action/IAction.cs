@@ -3,13 +3,11 @@ using TTT.Public.Mod.Role;
 
 namespace TTT.Public.Action;
 
-public abstract class Action
-{
-    public abstract CCSPlayerController Actor();
-    public abstract string ActionMessage();
+public abstract class Action {
+  public abstract CCSPlayerController Actor();
+  public abstract string ActionMessage();
 
-    protected static string GoodAction(Role actor, Role actor2)
-    {
-        return actor == actor2 ? "[Bad action!]" : "";
-    }
+  protected static string GoodAction(Role actor, Role actor2) {
+    return actor == actor2 ? "[Bad action!]" : "";
+  }
 }

@@ -6,9 +6,9 @@
         <Nullable>enable</Nullable>
         <RootNamespace>TTT.Shop</RootNamespace>
     </PropertyGroup>
-    
+
     <ItemGroup>
-       <ProjectReference Include="..\..\public\TTT.Public\TTT.Public.csproj" />
+        <ProjectReference Include="..\..\public\TTT.Public\TTT.Public.csproj"/>
     </ItemGroup>
 
 </Project>

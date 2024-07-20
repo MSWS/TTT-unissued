@@ -1,31 +1,31 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
-  
-  <ItemGroup>
-    <ProjectReference Include="..\..\public\TTT.Public\TTT.Public.csproj" />
-    <ProjectReference Include="..\..\mod\TTT.Detective\TTT.Detective.csproj" />
-    <ProjectReference Include="..\..\mod\TTT.Roles\TTT.Roles.csproj" />
-    <ProjectReference Include="..\..\mod\TTT.Player\TTT.Player.csproj" />
-    <ProjectReference Include="..\..\mod\TTT.Manager\TTT.Manager.csproj" />
-    <ProjectReference Include="..\..\mod\TTT.Logs\TTT.Logs.csproj" />
-    <ProjectReference Include="..\..\mod\TTT.Round\TTT.Round.csproj" />
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
 
-  </ItemGroup>
-  
-  <PropertyGroup>
-    <!--Publish Configuration-->
-    <PublishBaseDirectory>$(MSBuildThisFileDirectory)/../../build</PublishBaseDirectory>
-    <PublishDir>$(PublishBaseDirectory)/TTT</PublishDir>
-    <PublishRelease>false</PublishRelease>
-    <PublishSelfContained>false</PublishSelfContained>
-    <PublishDocumentationFile>true</PublishDocumentationFile>
-  </PropertyGroup>
-  
-  <Target Name="ZipOutputPath" AfterTargets="Publish">
-    <ZipDirectory Overwrite="true" SourceDirectory="$(PublishDir)\" DestinationFile="$(PublishBaseDirectory)\TTT.zip" />
-  </Target>
+    <ItemGroup>
+        <ProjectReference Include="..\..\public\TTT.Public\TTT.Public.csproj"/>
+        <ProjectReference Include="..\..\mod\TTT.Detective\TTT.Detective.csproj"/>
+        <ProjectReference Include="..\..\mod\TTT.Roles\TTT.Roles.csproj"/>
+        <ProjectReference Include="..\..\mod\TTT.Player\TTT.Player.csproj"/>
+        <ProjectReference Include="..\..\mod\TTT.Manager\TTT.Manager.csproj"/>
+        <ProjectReference Include="..\..\mod\TTT.Logs\TTT.Logs.csproj"/>
+        <ProjectReference Include="..\..\mod\TTT.Round\TTT.Round.csproj"/>
+
+    </ItemGroup>
+
+    <PropertyGroup>
+        <!--Publish Configuration-->
+        <PublishBaseDirectory>$(MSBuildThisFileDirectory)/../../build</PublishBaseDirectory>
+        <PublishDir>$(PublishBaseDirectory)/TTT</PublishDir>
+        <PublishRelease>false</PublishRelease>
+        <PublishSelfContained>false</PublishSelfContained>
+        <PublishDocumentationFile>true</PublishDocumentationFile>
+    </PropertyGroup>
+
+    <Target Name="ZipOutputPath" AfterTargets="Publish">
+        <ZipDirectory Overwrite="true" SourceDirectory="$(PublishDir)\" DestinationFile="$(PublishBaseDirectory)\TTT.zip"/>
+    </Target>
 </Project>

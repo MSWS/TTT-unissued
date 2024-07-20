@@ -4,7 +4,6 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
-using TTT.Player;
 using TTT.Public.Behaviors;
 using TTT.Public.Extensions;
 using TTT.Public.Formatting;
@@ -15,286 +14,253 @@ using TTT.Round;
 
 namespace TTT.Roles;
 
-public class RoleBehavior : IRoleService, IPluginBehavior
-{
-    private const int MaxDetectives = 3;
+public class RoleBehavior : IRoleService, IPluginBehavior {
+  private const int MaxDetectives = 3;
+  private readonly IPlayerService service;
 
-    private int _innocentsLeft;
-    private IRoundService _roundService;
-    private int _traitorsLeft;
-    private readonly IPlayerService service;
-    
-    public RoleBehavior(IPlayerService playerService)
-    {
-        _roundService = new RoundBehavior(this);
-        service = playerService;
-    }
-    
-    public void Start(BasePlugin parent)
-    {
-        ModelHandler.RegisterListener(parent);
-        _roundService.Start(parent);
-        /*
-        parent.RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnect);
-        parent.RegisterEventHandler<EventRoundFreezeEnd>(OnRoundStart);
-        parent.RegisterEventHandler<EventRoundEnd>(OnRoundEnd);
-        parent.RegisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
-        parent.RegisterEventHandler<EventPlayerDeath>(OnPlayerDeath, HookMode.Pre);
-        parent.RegisterEventHandler<EventGameStart>(OnMapStart);
-        */
-    }
+  private int _innocentsLeft;
+  private readonly IRoundService _roundService;
+  private int _traitorsLeft;
 
-    public IRoundService GetRoundService()
-    {
-        return _roundService;
-    }
-    
-    [GameEventHandler]
-    public HookResult OnRoundStart(EventRoundFreezeEnd @event, GameEventInfo info)
-    {
-        _roundService.SetRoundStatus(RoundStatus.Waiting);
-        foreach (var player in Utilities.GetPlayers().Where(player =>
-                     player.IsReal() && player.Team != CsTeam.None || player.Team != CsTeam.Spectator))
-        {
-            player.RemoveWeapons();
-            if (!string.IsNullOrEmpty("weapon_glock"))
-                player.GiveNamedItem("weapon_glock");
-            
-            if (!string.IsNullOrEmpty(string.Empty))
-                player.GiveNamedItem(string.Empty);
-            
-            player.GiveNamedItem("weapon_knife");
-            service.GetPlayer(player).ModifyKarma();
-        }
+  public RoleBehavior(IPlayerService playerService) {
+    _roundService = new RoundBehavior(this);
+    service       = playerService;
+  }
 
-        return HookResult.Continue;
+  public void Start(BasePlugin parent) {
+    ModelHandler.RegisterListener(parent);
+    _roundService.Start(parent);
+  }
+
+  public IRoundService GetRoundService() { return _roundService; }
+
+  public void AddRoles() {
+    var eligible = Utilities.GetPlayers()
+     .Where(player => player.IsReal())
+     .Where(player => player.Team is not (CsTeam.Spectator or CsTeam.None))
+     .ToList();
+
+    var traitorCount   = (int)Math.Floor(Convert.ToDouble(eligible.Count / 3));
+    var detectiveCount = (int)Math.Floor(Convert.ToDouble(eligible.Count / 8));
+
+    _traitorsLeft  = traitorCount;
+    _innocentsLeft = eligible.Count - traitorCount;
+
+    if (detectiveCount > MaxDetectives) detectiveCount = MaxDetectives;
+
+    for (var i = 0; i < traitorCount; i++) {
+      var chosen = eligible[Random.Shared.Next(eligible.Count)];
+      eligible.Remove(chosen);
+      AddTraitor(chosen);
     }
 
-    [GameEventHandler]
-    public HookResult OnPlayerConnect(EventPlayerConnectFull @event, GameEventInfo info)
-    {
-        if (Utilities.GetPlayers().Count(player =>
-                player.IsReal() && player.Team != CsTeam.None || player.Team == CsTeam.Spectator) < 3)
-        {
-            _roundService.ForceEnd();
-        }
-        
-        return HookResult.Continue;
+    for (var i = 0; i < detectiveCount; i++) {
+      var chosen = eligible[Random.Shared.Next(eligible.Count)];
+      eligible.Remove(chosen);
+      AddDetective(chosen);
     }
 
-    [GameEventHandler(HookMode.Pre)]
-    public HookResult OnPlayerDeath(EventPlayerDeath @event, GameEventInfo info)
-    {
-        info.DontBroadcast = true;
+    AddInnocents(eligible.ToArray());
+  }
 
-        var playerWhoWasDamaged = @event.Userid;
-        var attacker = @event.Attacker;
-        
-        
-        
-        
-        if (playerWhoWasDamaged == null) return HookResult.Continue;
+  public ISet<CCSPlayerController> GetTraitors() {
+    return GetByRole(Role.Traitor);
+  }
 
-        SetColor(playerWhoWasDamaged);
-        
-        playerWhoWasDamaged.ModifyScoreBoard();
+  public ISet<CCSPlayerController> GetDetectives() {
+    return GetByRole(Role.Detective);
+  }
 
-        service.GetPlayer(playerWhoWasDamaged).SetKiller(attacker);
-        
-        if (IsTraitor(playerWhoWasDamaged)) _traitorsLeft--;
+  public ISet<CCSPlayerController> GetInnocents() {
+    return GetByRole(Role.Innocent);
+  }
 
-        if (IsDetective(playerWhoWasDamaged) || IsInnocent(playerWhoWasDamaged)) _innocentsLeft--;
+  public ISet<CCSPlayerController> GetByRole(Role role) {
+    return service.Players()
+     .Where(player => player.PlayerRole() == role)
+     .Select(player => player.Player())
+     .Where(p => p != null)
+     .ToHashSet()!;
+  }
 
-        if (_traitorsLeft == 0 || _innocentsLeft == 0) Server.NextFrame(() => _roundService.ForceEnd());
+  public Role GetRole(CCSPlayerController player) {
+    return service.GetPlayer(player).PlayerRole();
+  }
 
-        Server.NextFrame(() =>
-        {
-            Server.PrintToChatAll(
-                StringUtils.FormatTTT($"{GetRole(playerWhoWasDamaged).FormatStringFullAfter(" has been found.")}"));
+  public void AddTraitor(params CCSPlayerController[] players) {
+    foreach (var player in players) {
+      service.GetPlayer(player).SetPlayerRole(Role.Traitor);
+      player.SwitchTeam(CsTeam.Terrorist);
+      player.PrintToCenter(
+        Role.Traitor.FormatStringFullBefore("You are now a"));
+      player.PrintToChat(Role.Traitor.FormatStringFullBefore("You are now a"));
+      ModelHandler.SetModel(player, ModelHandler.ModelPathTmPhoenix);
+    }
+  }
 
-            if (attacker == playerWhoWasDamaged || attacker == null) return;
+  public void AddDetective(params CCSPlayerController[] players) {
+    foreach (var player in players) {
+      service.GetPlayer(player).SetPlayerRole(Role.Detective);
+      player.SwitchTeam(CsTeam.CounterTerrorist);
+      player.PrintToCenter(
+        Role.Detective.FormatStringFullBefore("You are now a"));
+      player.GiveNamedItem(CsItem.Taser);
+      ModelHandler.SetModel(player, ModelHandler.ModelPathCtmSas);
+    }
+  }
 
-            attacker.ModifyScoreBoard();
+  public void AddInnocents(params CCSPlayerController[] players) {
+    foreach (var player in players) {
+      service.GetPlayer(player).SetPlayerRole(Role.Innocent);
+      player.PrintToCenter(
+        Role.Innocent.FormatStringFullBefore("You are now an"));
+      player.SwitchTeam(CsTeam.Terrorist);
+      ModelHandler.SetModel(player, ModelHandler.ModelPathTmPhoenix);
+    }
+  }
 
-            playerWhoWasDamaged.PrintToChat(StringUtils.FormatTTT(
-                $"You were killed by {GetRole(attacker).FormatStringFullAfter(" " + attacker.PlayerName)}."));
-            attacker.PrintToChat(StringUtils.FormatTTT(
-                $"You killed {GetRole(playerWhoWasDamaged).FormatStringFullAfter(" " + playerWhoWasDamaged.PlayerName)}."));
-        });
+  public bool IsDetective(CCSPlayerController player) {
+    return service.GetPlayer(player).PlayerRole() == Role.Detective;
+  }
 
-        return HookResult.Continue;
+  public bool IsTraitor(CCSPlayerController player) {
+    return service.GetPlayer(player).PlayerRole() == Role.Traitor;
+  }
+
+  public void Clear() {
+    service.Clr();
+    foreach (var key in service.Players()) {
+      key.SetPlayerRole(Role.Unassigned);
+      if (key.Player() == null) continue;
+      RemoveColor(key.Player()!);
+    }
+  }
+
+  [GameEventHandler]
+  public HookResult
+    OnRoundStart(EventRoundFreezeEnd @event, GameEventInfo info) {
+    _roundService.SetRoundStatus(RoundStatus.Waiting);
+    foreach (var player in Utilities.GetPlayers()
+     .Where(player => player.IsReal() && player.Team != CsTeam.None
+        || player.Team != CsTeam.Spectator)) {
+      player.RemoveWeapons();
+      player.GiveNamedItem("weapon_glock");
+      player.GiveNamedItem("weapon_knife");
+      service.GetPlayer(player).ModifyKarma();
     }
 
-    [GameEventHandler]
-    public HookResult OnRoundEnd(EventRoundEnd @event, GameEventInfo info)
-    {
-        var players = Utilities.GetPlayers()
-            .Where(player => player.IsValid).Where(player => player.IsReal()).ToList();
+    return HookResult.Continue;
+  }
 
-        foreach (var player in players) player.PrintToCenter(GetWinner().FormatStringFullAfter("s has won!"));
+  [GameEventHandler]
+  public HookResult OnPlayerConnect(EventPlayerConnectFull @event,
+    GameEventInfo info) {
+    if (Utilities.GetPlayers()
+     .Count(player => player.IsReal() && player.Team != CsTeam.None
+        || player.Team == CsTeam.Spectator) < 3)
+      _roundService.ForceEnd();
 
-        Server.NextFrame(Clear);
+    return HookResult.Continue;
+  }
 
-        return HookResult.Continue;
-    }
+  [GameEventHandler(HookMode.Pre)]
+  public HookResult OnPlayerDeath(EventPlayerDeath @event, GameEventInfo info) {
+    info.DontBroadcast = true;
 
-    [GameEventHandler]
-    public HookResult OnPlayerDisconnect(EventPlayerDisconnect @event, GameEventInfo info)
-    {
-        var player = @event.Userid;
-        Server.NextFrame(() =>
-        {
-            service.RemovePlayer(player);
-            if (service.Players().Count == 0) _roundService.SetRoundStatus(RoundStatus.Paused);
-        });
+    var playerWhoWasDamaged = @event.Userid;
+    var attacker            = @event.Attacker;
 
-        return HookResult.Continue;
-    }
+    if (playerWhoWasDamaged == null) return HookResult.Continue;
 
-    public void AddRoles()
-    {
-        var eligible = Utilities.GetPlayers()
-            .Where(player => player.IsReal())
-            .Where(player => player.Team is not (CsTeam.Spectator or CsTeam.None))
-            .ToList();
+    SetColor(playerWhoWasDamaged);
+    playerWhoWasDamaged.ModifyScoreBoard();
 
-        var traitorCount = (int)Math.Floor(Convert.ToDouble(eligible.Count / 3));
-        var detectiveCount = (int)Math.Floor(Convert.ToDouble(eligible.Count / 8));
+    service.GetPlayer(playerWhoWasDamaged).SetKiller(attacker);
 
-        _traitorsLeft = traitorCount;
-        _innocentsLeft = eligible.Count - traitorCount;
+    if (IsTraitor(playerWhoWasDamaged)) _traitorsLeft--;
+    if (IsDetective(playerWhoWasDamaged) || IsInnocent(playerWhoWasDamaged))
+      _innocentsLeft--;
 
-        if (detectiveCount > MaxDetectives) detectiveCount = MaxDetectives;
+    if (_traitorsLeft == 0 || _innocentsLeft == 0)
+      Server.NextFrame(() => _roundService.ForceEnd());
 
-        for (var i = 0; i < traitorCount; i++)
-        {
-            var chosen = eligible[Random.Shared.Next(eligible.Count)];
-            eligible.Remove(chosen);
-            AddTraitor(chosen);
-        }
+    Server.NextFrame(() => {
+      Server.PrintToChatAll(StringUtils.FormatTTT(
+        $"{GetRole(playerWhoWasDamaged).FormatStringFullAfter(" has been found.")}"));
 
-        for (var i = 0; i < detectiveCount; i++)
-        {
-            var chosen = eligible[Random.Shared.Next(eligible.Count)];
-            eligible.Remove(chosen);
-            AddDetective(chosen);
-        }
+      if (attacker == playerWhoWasDamaged || attacker == null) return;
 
-        AddInnocents(eligible);
-    }
+      attacker.ModifyScoreBoard();
 
-    public ISet<CCSPlayerController> GetTraitors()
-    {
-        return service.Players().Where(player => player.PlayerRole() == Role.Traitor).Select(player => player.Player())
-            .ToHashSet();
-    }
+      playerWhoWasDamaged.PrintToChat(StringUtils.FormatTTT(
+        $"You were killed by {GetRole(attacker).FormatStringFullAfter(" " + attacker.PlayerName)}."));
+      attacker.PrintToChat(StringUtils.FormatTTT(
+        $"You killed {GetRole(playerWhoWasDamaged).FormatStringFullAfter(" " + playerWhoWasDamaged.PlayerName)}."));
+    });
 
-    public ISet<CCSPlayerController> GetDetectives()
-    {
-        return service.Players().Where(player => player.PlayerRole() == Role.Detective).Select(player => player.Player())
-            .ToHashSet();
-    }
+    return HookResult.Continue;
+  }
 
-    public ISet<CCSPlayerController> GetInnocents()
-    {
-        return service.Players().Where(player => player.PlayerRole() == Role.Innocent).Select(player => player.Player())
-            .ToHashSet();
-    }
+  [GameEventHandler]
+  public HookResult OnRoundEnd(EventRoundEnd @event, GameEventInfo info) {
+    var players = Utilities.GetPlayers()
+     .Where(player => player.IsValid)
+     .Where(player => player.IsReal())
+     .ToList();
+
+    foreach (var player in players)
+      player.PrintToCenter(GetWinner().FormatStringFullAfter("s has won!"));
+
+    Server.NextFrame(Clear);
+
+    return HookResult.Continue;
+  }
+
+  [GameEventHandler]
+  public HookResult OnPlayerDisconnect(EventPlayerDisconnect @event,
+    GameEventInfo info) {
+    var player = @event.Userid;
+    Server.NextFrame(() => {
+      service.RemovePlayer(player);
+      if (service.Players().Count == 0)
+        _roundService.SetRoundStatus(RoundStatus.Paused);
+    });
+
+    return HookResult.Continue;
+  }
+
+  public bool IsInnocent(CCSPlayerController player) {
+    return service.GetPlayer(player).PlayerRole() == Role.Innocent;
+  }
+
+  private Role GetWinner() {
+    return _traitorsLeft == 0 ? Role.Traitor : Role.Innocent;
+  }
+
+  public void SetColor(CCSPlayerController player) {
+    if (!player.IsReal()) return;
+
+    var pawn = player.PlayerPawn.Value;
+
+    if (pawn == null || !pawn.IsValid) return;
+
+    pawn.RenderMode = RenderMode_t.kRenderTransColor;
+    pawn.Render     = GetRole(player).GetColor();
+
+    Utilities.SetStateChanged(pawn, "CBaseModelEntity", "m_clrRender");
+  }
+
+  public void RemoveColor(CCSPlayerController player) {
+    if (!player.IsReal()) return;
+
+    var pawn = player.PlayerPawn.Value;
+
+    if (pawn == null || !pawn.IsValid) return;
+
+    pawn.RenderMode = RenderMode_t.kRenderTransColor;
+    pawn.Render     = Color.FromArgb(254, 255, 255, 255);
 
 
-    public Role GetRole(CCSPlayerController player)
-    {
-        return service.GetPlayer(player).PlayerRole();
-    }
-
-    public void AddTraitor(CCSPlayerController player)
-    {
-        service.GetPlayer(player).SetPlayerRole(Role.Traitor);
-        player.SwitchTeam(CsTeam.Terrorist);
-        player.PrintToCenter(Role.Traitor.FormatStringFullBefore("You are now a(n)"));
-        player.PrintToChat(Role.Traitor.FormatStringFullBefore("You are now a(n)"));
-        ModelHandler.SetModelNextServerFrame(player, ModelHandler.ModelPathTmPhoenix);
-    }
-
-    public void AddDetective(CCSPlayerController player)
-    {
-        service.GetPlayer(player).SetPlayerRole(Role.Detective);
-        player.SwitchTeam(CsTeam.CounterTerrorist);
-        player.PrintToCenter(Role.Detective.FormatStringFullBefore("You are now a(n)"));
-        player.GiveNamedItem(CsItem.Taser);
-        ModelHandler.SetModelNextServerFrame(player, ModelHandler.ModelPathCtmSas);
-    }
-
-    public void AddInnocents(IEnumerable<CCSPlayerController> players)
-    {
-        foreach (var player in players)
-        {
-            service.GetPlayer(player).SetPlayerRole(Role.Innocent);
-            player.PrintToCenter(Role.Innocent.FormatStringFullBefore("You are now an"));
-            player.SwitchTeam(CsTeam.Terrorist);
-            ModelHandler.SetModelNextServerFrame(player, ModelHandler.ModelPathTmPhoenix);
-        }
-    }
-
-    public bool IsDetective(CCSPlayerController player)
-    {
-        return service.GetPlayer(player).PlayerRole() == Role.Detective;
-    }
-
-    public bool IsTraitor(CCSPlayerController player)
-    {
-        return service.GetPlayer(player).PlayerRole() == Role.Traitor;
-    }
-
-    public void Clear()
-    {
-        service.Clr();
-        foreach (var key in service.Players())
-        {
-            key.SetPlayerRole(Role.Unassigned);
-            if (key.Player() == null) continue;
-            RemoveColor(key.Player());
-        }
-    }
-
-    public bool IsInnocent(CCSPlayerController player)
-    {
-        return service.GetPlayer(player).PlayerRole() == Role.Innocent;
-    }
-
-    private Role GetWinner()
-    {
-        return _traitorsLeft == 0 ? Role.Traitor : Role.Innocent;
-    }
-
-    public void SetColor(CCSPlayerController player)
-    {
-        if (!player.IsReal()) return;
-
-        var pawn = player.PlayerPawn.Value;
-        
-        if (pawn == null || !pawn.IsValid) return;
-
-        pawn.RenderMode = RenderMode_t.kRenderTransColor;
-        pawn.Render = GetRole(player).GetColor();
-        
-        Utilities.SetStateChanged(pawn, "CBaseModelEntity", "m_clrRender");
-    }
-    
-    public void RemoveColor(CCSPlayerController player)
-    {
-        if (!player.IsReal()) return;
-
-        var pawn = player.PlayerPawn.Value;
-        
-        if (pawn == null || !pawn.IsValid) return;
-
-        pawn.RenderMode = RenderMode_t.kRenderTransColor;
-        pawn.Render = Color.FromArgb(254, 255, 255, 255);
-
-        
-        Utilities.SetStateChanged(pawn, "CBaseModelEntity", "m_clrRender");
-        
-    }
+    Utilities.SetStateChanged(pawn, "CBaseModelEntity", "m_clrRender");
+  }
 }
-

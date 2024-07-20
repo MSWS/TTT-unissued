@@ -1,8 +1,3 @@
-﻿using CounterStrikeSharp.API.Core;
+﻿namespace TTT.Roles;
 
-namespace TTT.Roles;
-
-public class TraitorRoom
-{
-    
-}
+public class TraitorRoom { }
