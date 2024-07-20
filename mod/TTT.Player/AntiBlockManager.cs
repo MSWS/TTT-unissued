@@ -11,62 +11,58 @@ using TTT.Public.Extensions;
 
 namespace TTT.Player;
 
-public class AntiBlockManager : IPluginBehavior
-{
-    public void Start(BasePlugin plugin)
-    {
+public class AntiBlockManager : IPluginBehavior {
+  private readonly WIN_LINUX<int> OnCollisionRulesChangedOffset = new(173, 172);
+
+  public void Start(BasePlugin plugin) { }
+
+  [GameEventHandler]
+  private HookResult Event_PlayerSpawn(EventPlayerSpawn @event,
+    GameEventInfo info) {
+    if (!@event.Userid.IsValid) return HookResult.Continue;
+
+    var player = @event.Userid;
+
+    if (!player.IsReal()) return HookResult.Continue;
+
+    if (!player.PlayerPawn.IsValid) return HookResult.Continue;
+
+    var pawn = player.PlayerPawn;
+
+    Server.NextFrame(() => PlayerSpawnNextFrame(player, pawn));
+
+    return HookResult.Continue;
+  }
+
+  private void PlayerSpawnNextFrame(CCSPlayerController player,
+    CHandle<CCSPlayerPawn> pawn) {
+    pawn.Value.Collision.CollisionGroup =
+      (byte)CollisionGroup.COLLISION_GROUP_DISSOLVING;
+
+    pawn.Value.Collision.CollisionAttribute.CollisionGroup =
+      (byte)CollisionGroup.COLLISION_GROUP_DISSOLVING;
+
+    var collisionRulesChanged = new VirtualFunctionVoid<nint>(pawn.Value.Handle,
+      OnCollisionRulesChangedOffset.Get());
+
+    collisionRulesChanged.Invoke(pawn.Value.Handle);
+  }
+
+  public class WIN_LINUX<T> {
+    public WIN_LINUX(T windows, T linux) {
+      Windows = windows;
+      Linux   = linux;
     }
 
-    [GameEventHandler]
-    private HookResult Event_PlayerSpawn(EventPlayerSpawn @event, GameEventInfo info)
-    {
-        if (!@event.Userid.IsValid) return HookResult.Continue;
+    [JsonPropertyName("Windows")]
+    public T Windows { get; }
 
-        var player = @event.Userid;
+    [JsonPropertyName("Linux")]
+    public T Linux { get; }
 
-        if (!player.IsReal()) return HookResult.Continue;
-
-        if (!player.PlayerPawn.IsValid) return HookResult.Continue;
-
-        var pawn = player.PlayerPawn;
-
-        Server.NextFrame(() => PlayerSpawnNextFrame(player, pawn));
-
-        return HookResult.Continue;
+    public T Get() {
+      if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return Windows;
+      return Linux;
     }
-
-    private readonly WIN_LINUX<int> OnCollisionRulesChangedOffset = new(173, 172);
-
-    private void PlayerSpawnNextFrame(CCSPlayerController player, CHandle<CCSPlayerPawn> pawn)
-    {
-        pawn.Value.Collision.CollisionGroup = (byte)CollisionGroup.COLLISION_GROUP_DISSOLVING;
-
-        pawn.Value.Collision.CollisionAttribute.CollisionGroup = (byte)CollisionGroup.COLLISION_GROUP_DISSOLVING;
-
-        var collisionRulesChanged =
-            new VirtualFunctionVoid<nint>(pawn.Value.Handle, OnCollisionRulesChangedOffset.Get());
-
-        collisionRulesChanged.Invoke(pawn.Value.Handle);
-    }
-    
-    public class WIN_LINUX<T>
-    {
-        [JsonPropertyName("Windows")] public T Windows { get; private set; }
-
-        [JsonPropertyName("Linux")] public T Linux { get; private set; }
-
-        public WIN_LINUX(T windows, T linux)
-        {
-            Windows = windows;
-            Linux = linux;
-        }
-
-        public T Get()
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                return Windows;
-            else
-                return Linux;
-        }
-    }
+  }
 }
