@@ -62,7 +62,7 @@ public class DetectiveManager(IPlayerService roleService)
   private void OnPlayerUse(CCSPlayerController player) { IdentifyBody(player); }
 
   private void IdentifyBody(CCSPlayerController caller) {
-    // if (roleService.GetPlayer(caller).PlayerRole() != Role.Detective) return;
+    if (roleService.GetPlayer(caller).PlayerRole() != Role.Detective) return;
 
     var entity = caller.GetClientRagdollAimTarget();
 

@@ -18,32 +18,33 @@ public class RoleBehavior : IRoleService, IPluginBehavior {
   private const int MaxDetectives = 3;
   private readonly IPlayerService service;
 
-  private int innocentsLeft;
-  private readonly IRoundService roundService;
-  private int traitorsLeft;
+  private int _innocentsLeft;
+  private readonly IRoundService _roundService;
+  private int _traitorsLeft;
 
   public RoleBehavior(IPlayerService playerService) {
-    roundService = new RoundBehavior(this);
-    service      = playerService;
+    _roundService = new RoundBehavior(this);
+    service       = playerService;
   }
 
   public void Start(BasePlugin parent) {
     ModelHandler.RegisterListener(parent);
-    roundService.Start(parent);
+    _roundService.Start(parent);
   }
 
-  public IRoundService GetRoundService() { return roundService; }
+  public IRoundService GetRoundService() { return _roundService; }
 
   public void AddRoles() {
     var eligible = Utilities.GetPlayers()
+     .Where(player => player.IsReal())
      .Where(player => player.Team is not (CsTeam.Spectator or CsTeam.None))
      .ToList();
 
     var traitorCount   = (int)Math.Floor(Convert.ToDouble(eligible.Count / 3));
     var detectiveCount = (int)Math.Floor(Convert.ToDouble(eligible.Count / 8));
 
-    traitorsLeft  = traitorCount;
-    innocentsLeft = eligible.Count - traitorCount;
+    _traitorsLeft  = traitorCount;
+    _innocentsLeft = eligible.Count - traitorCount;
 
     if (detectiveCount > MaxDetectives) detectiveCount = MaxDetectives;
 
@@ -89,7 +90,7 @@ public class RoleBehavior : IRoleService, IPluginBehavior {
   public void AddTraitor(params CCSPlayerController[] players) {
     foreach (var player in players) {
       service.GetPlayer(player).SetPlayerRole(Role.Traitor);
-      player.SwitchTeam(CsTeam.Spectator);
+      player.SwitchTeam(CsTeam.Terrorist);
       player.PrintToCenter(
         Role.Traitor.FormatStringFullBefore("You are now a"));
       player.PrintToChat(Role.Traitor.FormatStringFullBefore("You are now a"));
@@ -113,7 +114,7 @@ public class RoleBehavior : IRoleService, IPluginBehavior {
       service.GetPlayer(player).SetPlayerRole(Role.Innocent);
       player.PrintToCenter(
         Role.Innocent.FormatStringFullBefore("You are now an"));
-      player.SwitchTeam(CsTeam.Spectator);
+      player.SwitchTeam(CsTeam.Terrorist);
       ModelHandler.SetModel(player, ModelHandler.ModelPathTmPhoenix);
     }
   }
@@ -138,7 +139,7 @@ public class RoleBehavior : IRoleService, IPluginBehavior {
   [GameEventHandler]
   public HookResult
     OnRoundStart(EventRoundFreezeEnd @event, GameEventInfo info) {
-    roundService.SetRoundStatus(RoundStatus.Waiting);
+    _roundService.SetRoundStatus(RoundStatus.Waiting);
     foreach (var player in Utilities.GetPlayers()
      .Where(player => player.IsReal() && player.Team != CsTeam.None
         || player.Team != CsTeam.Spectator)) {
@@ -154,8 +155,10 @@ public class RoleBehavior : IRoleService, IPluginBehavior {
   [GameEventHandler]
   public HookResult OnPlayerConnect(EventPlayerConnectFull @event,
     GameEventInfo info) {
-    if (Utilities.GetPlayers().Count(player => player.PawnIsAlive) < 3)
-      roundService.ForceEnd();
+    if (Utilities.GetPlayers()
+     .Count(player => player.IsReal() && player.Team != CsTeam.None
+        || player.Team == CsTeam.Spectator) < 3)
+      _roundService.ForceEnd();
 
     return HookResult.Continue;
   }
@@ -174,25 +177,26 @@ public class RoleBehavior : IRoleService, IPluginBehavior {
 
     service.GetPlayer(playerWhoWasDamaged).SetKiller(attacker);
 
-    if (IsTraitor(playerWhoWasDamaged)) traitorsLeft--;
+    if (IsTraitor(playerWhoWasDamaged)) _traitorsLeft--;
     if (IsDetective(playerWhoWasDamaged) || IsInnocent(playerWhoWasDamaged))
-      innocentsLeft--;
+      _innocentsLeft--;
 
-    if (traitorsLeft == 0 || innocentsLeft == 0)
-      Server.NextFrame(() => roundService.ForceEnd());
+    if (_traitorsLeft == 0 || _innocentsLeft == 0)
+      Server.NextFrame(() => _roundService.ForceEnd());
 
-    // Server.PrintToChatAll(StringUtils.FormatTTT(
-    //   $"{GetRole(playerWhoWasDamaged).FormatStringFullAfter(" has been found.")}"));
+    Server.NextFrame(() => {
+      Server.PrintToChatAll(StringUtils.FormatTTT(
+        $"{GetRole(playerWhoWasDamaged).FormatStringFullAfter(" has been found.")}"));
 
-    if (attacker == playerWhoWasDamaged || attacker == null)
-      return HookResult.Continue;
+      if (attacker == playerWhoWasDamaged || attacker == null) return;
 
-    attacker.ModifyScoreBoard();
+      attacker.ModifyScoreBoard();
 
-    playerWhoWasDamaged.PrintToChat(StringUtils.FormatTTT(
-      $"You were killed by {GetRole(attacker).FormatStringFullAfter(" " + attacker.PlayerName)}."));
-    attacker.PrintToChat(StringUtils.FormatTTT(
-      $"You killed {GetRole(playerWhoWasDamaged).FormatStringFullAfter(" " + playerWhoWasDamaged.PlayerName)}."));
+      playerWhoWasDamaged.PrintToChat(StringUtils.FormatTTT(
+        $"You were killed by {GetRole(attacker).FormatStringFullAfter(" " + attacker.PlayerName)}."));
+      attacker.PrintToChat(StringUtils.FormatTTT(
+        $"You killed {GetRole(playerWhoWasDamaged).FormatStringFullAfter(" " + playerWhoWasDamaged.PlayerName)}."));
+    });
 
     return HookResult.Continue;
   }
@@ -201,12 +205,14 @@ public class RoleBehavior : IRoleService, IPluginBehavior {
   public HookResult OnRoundEnd(EventRoundEnd @event, GameEventInfo info) {
     var players = Utilities.GetPlayers()
      .Where(player => player.IsValid)
+     .Where(player => player.IsReal())
      .ToList();
 
     foreach (var player in players)
       player.PrintToCenter(GetWinner().FormatStringFullAfter("s has won!"));
 
-    Clear();
+    Server.NextFrame(Clear);
+
     return HookResult.Continue;
   }
 
@@ -214,10 +220,11 @@ public class RoleBehavior : IRoleService, IPluginBehavior {
   public HookResult OnPlayerDisconnect(EventPlayerDisconnect @event,
     GameEventInfo info) {
     var player = @event.Userid;
-    if (player == null) return HookResult.Continue;
-    service.RemovePlayer(player);
-    if (service.Players().Count == 0)
-      roundService.SetRoundStatus(RoundStatus.Paused);
+    Server.NextFrame(() => {
+      service.RemovePlayer(player);
+      if (service.Players().Count == 0)
+        _roundService.SetRoundStatus(RoundStatus.Paused);
+    });
 
     return HookResult.Continue;
   }
@@ -227,7 +234,7 @@ public class RoleBehavior : IRoleService, IPluginBehavior {
   }
 
   private Role GetWinner() {
-    return traitorsLeft == 0 ? Role.Traitor : Role.Innocent;
+    return _traitorsLeft == 0 ? Role.Traitor : Role.Innocent;
   }
 
   public void SetColor(CCSPlayerController player) {
