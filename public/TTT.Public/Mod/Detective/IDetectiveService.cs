@@ -1,3 +1,5 @@
 ﻿namespace TTT.Public.Mod.Detective;
 
-public interface IDetectiveService { }
+public interface IDetectiveService
+{
+}

@@ -2,6 +2,7 @@
 
 namespace TTT.Formatting.Base;
 
-public interface IView {
-  void Render(FormatWriter writer);
+public interface IView
+{
+    void Render(FormatWriter writer);
 }

@@ -1,64 +1,127 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using TTT.Public.Mod.Role;
+using TTT.Public.Player;
 
 namespace TTT.Player;
 
-public class GamePlayer(Role playerRole, long credits, int karma,
-  int playerId) {
-  private bool dead;
-  private bool found;
+public class GamePlayer
+{
 
-  // TODO: Use Steam ID
-  private CCSPlayerController? killer;
+    private Role _playerRole;
+    private int _playerId;
+    private int _karma;
+    private long _credits;
+    private CCSPlayerController? _killer;
+    private bool _shopOpen = false;
+    private bool _isFound = false;
+    private bool _isDead = false;
 
-  private bool shopOpen;
+    public GamePlayer(Role playerRole, long credits, int karma, int playerId)
+    {
+        _playerRole = playerRole;
+        _credits = credits;
+        _karma = karma;
+        _killer = null;
+        _playerId = playerId;
+    }
 
-  public bool IsDead() { return dead; }
+    public bool IsDead()
+    {
+        return _isDead;
+    }
 
-  public void SetDead(bool isDead = false) { dead = isDead; }
+    public void SetDead(bool isDead = false)
+    {
+        _isDead = isDead;
+    }
+    
+    public CCSPlayerController? Player()
+    {
+        return Utilities.GetPlayerFromUserid(_playerId);
+    }
 
-  public CCSPlayerController? Player() {
-    return Utilities.GetPlayerFromUserid(playerId);
-  }
+    public Role PlayerRole()
+    {
+        return _playerRole;
+    }
 
-  public Role PlayerRole() { return playerRole; }
+    public int Karma()
+    {
+        return _karma;
+    }
 
-  public int Karma() { return karma; }
+    public void SetKarma(int karma)
+    {
+        _karma = karma;
+    }
+    
+    public void AddKarma(int karma)
+    {
+        _karma += karma;
+    }
 
-  public void SetKarma(int karma1) { karma = karma1; }
+    public void RemoveKarma(int karma)
+    {
+        _karma -= karma;
+        if (_karma >= 40) return;
+        _karma = 80;
+        //Server.ExecuteCommand($"css_ban #{_playerId} 1440 Karma too low");
+    }
 
-  public void AddKarma(int karma1) { karma += karma1; }
+    public void SetPlayerRole(Role role)
+    {
+        _playerRole = role;
+    }
 
-  public void RemoveKarma(int karma1) {
-    karma -= karma1;
-    if (karma >= 40) return;
-    karma = 80;
-    //Server.ExecuteCommand($"css_ban #{_playerId} 1440 Karma too low");
-  }
+    public long Credits()
+    {
+        return _credits;
+    }
 
-  public void SetPlayerRole(Role role) { playerRole = role; }
+    public void AddCredits(long increment)
+    {
+        _credits += increment;
+    }
 
-  public long Credits() { return credits; }
+    public void RemoveCredits(long decrement)
+    {
+        _credits -= decrement;
+    }
 
-  public void AddCredits(long increment) { credits += increment; }
+    public void ResetCredits()
+    {
+        _credits = 800; 
+    }
 
-  public void RemoveCredits(long decrement) { credits -= decrement; }
+    public CCSPlayerController? Killer()
+    {
+        return _killer;
+    }
 
-  public void ResetCredits() { credits = 800; }
-
-  public CCSPlayerController? Killer() { return killer; }
-
-  public void SetKiller(CCSPlayerController? killer) { this.killer = killer; }
-
-  public void SetShopOpen(bool open) { shopOpen = open; }
-
-  public bool ShopOpen() { return shopOpen; }
-
-  public bool SetFound(bool found) {
-    this.found = found;
-    return this.found;
-  }
-
-  public bool IsFound() { return found; }
+    public void SetKiller(CCSPlayerController? killer)
+    {
+        _killer = killer;
+    }
+    
+    public void SetShopOpen(bool open)
+    {
+        _shopOpen = open;
+    }
+    
+    public bool ShopOpen()
+    {
+        return _shopOpen;
+    }
+    
+    public bool SetFound(bool found)
+    {
+        _isFound = found;
+        return _isFound;
+    }
+    
+    public bool IsFound()
+    {
+        return _isFound;
+    }
 }

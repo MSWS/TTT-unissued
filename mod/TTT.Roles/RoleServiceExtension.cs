@@ -5,9 +5,11 @@ using TTT.Roles.Commands;
 
 namespace TTT.Roles;
 
-public static class RoleServiceExtension {
-  public static void AddTTTRoles(this IServiceCollection collection) {
-    collection.AddPluginBehavior<IRoleService, RoleBehavior>();
-    collection.AddPluginBehavior<RolesCommand>();
-  }
+public static class RoleServiceExtension
+{
+    public static void AddTTTRoles(this IServiceCollection collection)
+    {
+        collection.AddPluginBehavior<IRoleService, RoleBehavior>();
+        collection.AddPluginBehavior<RolesCommand>();
+    }
 }
