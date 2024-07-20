@@ -7,21 +7,12 @@ using TTT.Public.Mod.Role;
 
 namespace TTT.Round;
 
-public class Round {
-  private readonly RoundConfig? _config;
-  private readonly IRoleService _roleService;
-  private readonly int _roundId;
-  private float _graceTime = 20 * 64;
-
-  public Round(IRoleService roleService, RoundConfig? config, int roundId) {
-    _roleService = roleService;
-    _config      = config;
-    _graceTime   = 20 * 64;
-    _roundId     = roundId;
-  }
+public class Round(IRoleService roleService, RoundConfig? config, int roundId) {
+  private readonly RoundConfig? config = config;
+  private float graceTime = 20 * 64;
 
   public void Tick() {
-    _graceTime--;
+    graceTime--;
 
     var players = Utilities.GetPlayers()
      .Where(player => player.IsValid)
@@ -34,11 +25,11 @@ public class Round {
     foreach (var player in players)
       Server.NextFrame(() => {
         player.PrintToCenterHtml(
-          $"{formattedColor}<b>[TTT] Game is starting in {Math.Floor(_graceTime / 64)} seconds</b></font>");
+          $"{formattedColor}<b>[TTT] Game is starting in {Math.Floor(graceTime / 64)} seconds</b></font>");
       });
   }
 
-  public float GraceTime() { return _graceTime; }
+  public float GraceTime() { return graceTime; }
 
   public void Start() {
     foreach (var player in Utilities.GetPlayers()
@@ -48,24 +39,24 @@ public class Round {
         => player.Team is CsTeam.Terrorist or CsTeam.CounterTerrorist))
       player.Respawn();
 
-    _roleService.AddRoles();
+    roleService.AddRoles();
     Server.NextFrame(()
       => Server.PrintToChatAll(StringUtils.FormatTTT(
-        $"Round #{_roundId} has started! {_roleService.GetTraitors().Count} traitors.")));
+        $"Round #{roundId} has started! {roleService.GetTraitors().Count} traitors.")));
     SendTraitorMessage();
     SendDetectiveMessage();
     SendInnocentMessage();
   }
 
   private void SendInnocentMessage() {
-    foreach (var player in _roleService.GetInnocents())
+    foreach (var player in roleService.GetInnocents())
       Server.NextFrame(()
         => player.PrintToChat(
           StringUtils.FormatTTT("You are now an innocent")));
   }
 
   private void SendTraitorMessage() {
-    var traitors = _roleService.GetTraitors();
+    var traitors = roleService.GetTraitors();
 
     foreach (var traitor in traitors) {
       Server.NextFrame(()
@@ -82,7 +73,7 @@ public class Round {
   }
 
   private void SendDetectiveMessage() {
-    var detectives = _roleService.GetDetectives();
+    var detectives = roleService.GetDetectives();
 
     foreach (var detective in detectives) {
       Server.NextFrame(()

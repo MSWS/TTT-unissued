@@ -12,10 +12,10 @@ using TTT.Public.Mod.Round;
 
 namespace TTT.Round;
 
-public class RoundBehavior(IRoleService _roleService) : IRoundService {
-  private Round? _round;
-  private int _roundId = 1;
-  private RoundStatus _roundStatus = RoundStatus.Paused;
+public class RoundBehavior(IRoleService roleService) : IRoundService {
+  private Round? round;
+  private int roundId = 1;
+  private RoundStatus roundStatus = RoundStatus.Paused;
 
   public void Start(BasePlugin plugin) {
     plugin.RegisterListener<Listeners.OnTick>(TickWaiting);
@@ -25,7 +25,7 @@ public class RoundBehavior(IRoleService _roleService) : IRoundService {
     plugin.AddTimer(3, EndRound, TimerFlags.REPEAT);
   }
 
-  public RoundStatus GetRoundStatus() { return _roundStatus; }
+  public RoundStatus GetRoundStatus() { return roundStatus; }
 
   public void SetRoundStatus(RoundStatus roundStatus) {
     switch (roundStatus) {
@@ -33,7 +33,7 @@ public class RoundBehavior(IRoleService _roleService) : IRoundService {
         ForceEnd();
         break;
       case RoundStatus.Waiting:
-        _round = new Round(_roleService, null, _roundId);
+        round = new Round(roleService, null, roundId);
         break;
       case RoundStatus.Started:
         ForceStart();
@@ -45,20 +45,20 @@ public class RoundBehavior(IRoleService _roleService) : IRoundService {
           "Invalid round status.");
     }
 
-    _roundStatus = roundStatus;
+    this.roundStatus = roundStatus;
   }
 
   public void TickWaiting() {
-    if (_round == null) {
-      _round = new Round(_roleService, null, _roundId);
+    if (round == null) {
+      round = new Round(roleService, null, roundId);
       return;
     }
 
-    if (_roundStatus != RoundStatus.Waiting) return;
+    if (roundStatus != RoundStatus.Waiting) return;
 
-    _round.Tick();
+    round.Tick();
 
-    if (_round.GraceTime() != 0) return;
+    if (round.GraceTime() != 0) return;
 
 
     if (Utilities.GetPlayers()
@@ -67,7 +67,7 @@ public class RoundBehavior(IRoleService _roleService) : IRoundService {
      .Count <= 2) {
       Server.PrintToChatAll(StringUtils.FormatTTT(
         "Not enough players to start the round. Round has been ended."));
-      _roundStatus = RoundStatus.Paused;
+      roundStatus = RoundStatus.Paused;
       return;
     }
 
@@ -75,38 +75,35 @@ public class RoundBehavior(IRoleService _roleService) : IRoundService {
   }
 
   public void ForceStart() {
-    foreach (var player in Utilities.GetPlayers()
-     .Where(player => player.IsReal())
-     .Where(player => player.IsReal())
-     .ToList())
+    foreach (var player in Utilities.GetPlayers().ToList())
       player.VoiceFlags = VoiceFlags.Normal;
-    _round!.Start();
+    round!.Start();
     ServerExtensions.GetGameRules().RoundTime = 360;
     Utilities.SetStateChanged(ServerExtensions.GetGameRulesProxy(),
       "CCSGameRulesProxy", "m_pGameRules");
   }
 
   public void ForceEnd() {
-    if (_roundStatus == RoundStatus.Ended) return;
-    _roundStatus = RoundStatus.Ended;
+    if (roundStatus == RoundStatus.Ended) return;
+    roundStatus = RoundStatus.Ended;
     Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules")
      .First()
      .GameRules!.TerminateRound(5, RoundEndReason.RoundDraw);
   }
 
   private void EndRound() {
-    if (_roundStatus == RoundStatus.Started
+    if (roundStatus == RoundStatus.Started
       && Utilities.GetPlayers().Count(player => player.PawnIsAlive) == 1)
       ForceEnd();
 
     var traitorCount =
-      _roleService.GetTraitors().Count(player => player.PawnIsAlive);
+      roleService.GetTraitors().Count(player => player.PawnIsAlive);
     var innocentCount =
-      _roleService.GetInnocents().Count(player => player.PawnIsAlive);
-    var detectiveCount = _roleService.GetDetectives()
+      roleService.GetInnocents().Count(player => player.PawnIsAlive);
+    var detectiveCount = roleService.GetDetectives()
      .Count(player => player.PawnIsAlive);
 
-    if (_roundStatus == RoundStatus.Started
+    if (roundStatus == RoundStatus.Started
       && (traitorCount == 0 || innocentCount + detectiveCount == 0))
       ForceEnd();
   }
@@ -114,17 +111,17 @@ public class RoundBehavior(IRoleService _roleService) : IRoundService {
   private HookResult BlockDamage(DynamicHook hook) {
     if (hook.GetParam<CEntityInstance>(0).DesignerName is not "player")
       return HookResult.Continue;
-    return _roundStatus != RoundStatus.Waiting ?
+    return roundStatus != RoundStatus.Waiting ?
       HookResult.Continue :
       HookResult.Stop;
   }
 
   private HookResult
     OnTeamJoin(CCSPlayerController? executor, CommandInfo info) {
-    if (_roundStatus != RoundStatus.Started) return HookResult.Continue;
+    if (roundStatus != RoundStatus.Started) return HookResult.Continue;
     if (executor == null) return HookResult.Continue;
     if (!executor.IsReal()) return HookResult.Continue;
-    if (_roleService.GetRole(executor) != Role.Unassigned)
+    if (roleService.GetRole(executor) != Role.Unassigned)
       return HookResult.Continue;
     Server.NextFrame(() => executor.CommitSuicide(false, true));
 
@@ -132,7 +129,7 @@ public class RoundBehavior(IRoleService _roleService) : IRoundService {
   }
 
   private HookResult OnRoundEnd(EventRoundEnd _, GameEventInfo __) {
-    _roundId++;
+    roundId++;
     return HookResult.Continue;
   }
 }

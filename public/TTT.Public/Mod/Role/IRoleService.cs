@@ -12,9 +12,9 @@ public interface IRoleService {
   ISet<CCSPlayerController> GetInnocents();
   bool IsDetective(CCSPlayerController player);
   bool IsTraitor(CCSPlayerController player);
-  void AddDetective(CCSPlayerController player);
-  void AddTraitor(CCSPlayerController player);
-  void AddInnocents(IEnumerable<CCSPlayerController> players);
+  void AddDetective(params CCSPlayerController[] player);
+  void AddTraitor(params CCSPlayerController[] player);
+  void AddInnocents(params CCSPlayerController[] players);
   void Clear();
 }
 

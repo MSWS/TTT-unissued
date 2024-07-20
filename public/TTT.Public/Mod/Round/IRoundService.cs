@@ -7,8 +7,6 @@ public interface IRoundService {
   void SetRoundStatus(RoundStatus roundStatus);
   void Start(BasePlugin plugin);
 
-  void TickWaiting();
-  void ForceStart();
   void ForceEnd();
 }
 

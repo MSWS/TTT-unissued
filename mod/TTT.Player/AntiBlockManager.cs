@@ -19,33 +19,30 @@ public class AntiBlockManager : IPluginBehavior {
   [GameEventHandler]
   private HookResult Event_PlayerSpawn(EventPlayerSpawn @event,
     GameEventInfo info) {
-    if (!@event.Userid.IsValid) return HookResult.Continue;
-
     var player = @event.Userid;
-
+    if (player == null || !player.IsValid) return HookResult.Continue;
     if (!player.IsReal()) return HookResult.Continue;
-
     if (!player.PlayerPawn.IsValid) return HookResult.Continue;
 
     var pawn = player.PlayerPawn;
+    if (pawn.Value == null) return HookResult.Continue;
 
-    Server.NextFrame(() => PlayerSpawnNextFrame(player, pawn));
-
+    PlayerSpawnNextFrame(player, pawn.Value!);
     return HookResult.Continue;
   }
 
   private void PlayerSpawnNextFrame(CCSPlayerController player,
-    CHandle<CCSPlayerPawn> pawn) {
-    pawn.Value.Collision.CollisionGroup =
+    CCSPlayerPawn pawn) {
+    pawn.Collision.CollisionGroup =
       (byte)CollisionGroup.COLLISION_GROUP_DISSOLVING;
 
-    pawn.Value.Collision.CollisionAttribute.CollisionGroup =
+    pawn.Collision.CollisionAttribute.CollisionGroup =
       (byte)CollisionGroup.COLLISION_GROUP_DISSOLVING;
 
-    var collisionRulesChanged = new VirtualFunctionVoid<nint>(pawn.Value.Handle,
+    var collisionRulesChanged = new VirtualFunctionVoid<nint>(pawn.Handle,
       OnCollisionRulesChangedOffset.Get());
 
-    collisionRulesChanged.Invoke(pawn.Value.Handle);
+    collisionRulesChanged.Invoke(pawn.Handle);
   }
 
   public class WIN_LINUX<T> {

@@ -22,21 +22,15 @@ public class MuteManager : IMuteService, IPluginBehavior {
 
   public void UnMuteAll() {
     foreach (var player in Utilities.GetPlayers()
-     .Where(player => player.IsReal() && player.Team == CsTeam.Terrorist))
-      UnMute(player);
-    foreach (var player in Utilities.GetPlayers()
      .Where(player
-        => player.IsReal() && player.Team == CsTeam.CounterTerrorist))
+        => player.Team is CsTeam.Terrorist or CsTeam.CounterTerrorist))
       UnMute(player);
   }
 
   public void MuteAll() {
     foreach (var player in Utilities.GetPlayers()
-     .Where(player => player.IsReal() && player.Team == CsTeam.Terrorist))
-      Mute(player);
-    foreach (var player in Utilities.GetPlayers()
      .Where(player
-        => player.IsReal() && player.Team == CsTeam.CounterTerrorist))
+        => player.Team is CsTeam.Terrorist or CsTeam.CounterTerrorist))
       Mute(player);
   }
 
@@ -59,18 +53,16 @@ public class MuteManager : IMuteService, IPluginBehavior {
 
   private void OnPlayerSpeak(int playerSlot) {
     var player = Utilities.GetPlayerFromSlot(playerSlot);
-    if (!player.IsReal()) return;
+    if (player == null || !player.IsReal()) return;
 
     if (!player.PawnIsAlive && !BypassMute(player)) {
       // Normal players can't speak when dead
       Mute(player);
-      Server.NextFrame(() => player.PrintToCenter("You are dead and muted!"));
+      player.PrintToCenter("You are dead and muted!");
       return;
     }
 
-    if (IsMuted(player)) {
-      Server.NextFrame(() => player.PrintToCenter("You are muted!"));
-    }
+    if (IsMuted(player)) player.PrintToCenter("You are muted!");
   }
 
   private bool IsMuted(CCSPlayerController player) {

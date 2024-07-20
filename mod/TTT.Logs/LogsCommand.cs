@@ -14,7 +14,6 @@ public class LogsCommand(ILogService service) : IPluginBehavior {
   public void Start(BasePlugin plugin) { }
 
   [ConsoleCommand("css_logs", "Prints logs to console")]
-  [CommandHelper(0, whoCanExecute: CommandUsage.CLIENT_ONLY)]
   public void Command_Logs(CCSPlayerController? executor, CommandInfo info) {
     if (!AdminManager.PlayerHasPermissions(executor, "@css/kick")) {
       info.ReplyToCommand(
@@ -23,20 +22,14 @@ public class LogsCommand(ILogService service) : IPluginBehavior {
       return;
     }
 
-    var roundIdString = info.GetArg(1);
-
     var roundId = service.GetCurrentRound();
 
-    if (string.IsNullOrEmpty(roundIdString)
-      && !int.TryParse(roundIdString, out roundId)) {
-      info.ReplyToCommand(
-        StringUtils.FormatTTT("Invalid round id, /logs <roundId>"));
-      return;
-    }
-
-    if (roundId <= 0) {
-      info.ReplyToCommand(StringUtils.FormatTTT("Invalid round id"));
-      return;
+    if (info.ArgCount == 2) {
+      if (!int.TryParse(info.GetArg(1), out roundId) || roundId <= 0) {
+        info.ReplyToCommand(
+          StringUtils.FormatTTT("Invalid round id, /logs <roundId>"));
+        return;
+      }
     }
 
     if (executor == null) {

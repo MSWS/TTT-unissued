@@ -11,22 +11,16 @@ using TTT.Public.Player;
 
 namespace TTT.Manager;
 
-public class InfoManager : IPluginBehavior {
-  private readonly IRoundService _manager;
+public class InfoManager(IPlayerService playerService, IRoleService manager)
+  : IPluginBehavior {
+  private readonly IRoundService manager = manager.GetRoundService();
 
   private readonly
     Dictionary<CCSPlayerController, Tuple<CCSPlayerController, Role>>
-    _playerLookAtRole = new();
-
-  private readonly IPlayerService _playerService;
+    playerLookAtRole = new();
 
   private readonly Dictionary<CCSPlayerController, Tuple<string, Role>>
-    _spectatorLookAtRole = new();
-
-  public InfoManager(IPlayerService playerService, IRoleService manager) {
-    _playerService = playerService;
-    _manager       = manager.GetRoundService();
-  }
+    spectatorLookAtRole = new();
 
   public void Start(BasePlugin plugin) {
     plugin.RegisterListener<Listeners.OnTick>(OnTick);
@@ -34,23 +28,22 @@ public class InfoManager : IPluginBehavior {
   }
 
   public void Reset() {
-    _playerLookAtRole.Clear();
-    _spectatorLookAtRole.Clear();
+    playerLookAtRole.Clear();
+    spectatorLookAtRole.Clear();
   }
 
   public void RegisterLookAtRole(CCSPlayerController player,
     Tuple<CCSPlayerController, Role> role) {
-    _playerLookAtRole.TryAdd(player, role);
+    playerLookAtRole.TryAdd(player, role);
   }
 
   public void RemoveLookAtRole(CCSPlayerController player) {
-    _playerLookAtRole.Remove(player);
+    playerLookAtRole.Remove(player);
   }
 
   public void OnTick() {
-    foreach (var gamePlayer in _playerService.Players()) {
-      if (_manager.GetRoundStatus() != RoundStatus.Started) return;
-
+    if (manager.GetRoundStatus() != RoundStatus.Started) return;
+    foreach (var gamePlayer in playerService.Players()) {
       var player = gamePlayer.Player();
 
       if (player == null) continue;
@@ -62,10 +55,9 @@ public class InfoManager : IPluginBehavior {
 
       if (!player.PawnIsAlive) continue;
 
-      if (!_playerLookAtRole.TryGetValue(player, out var value)) {
-        Server.NextFrame(()
-          => player.PrintToCenterHtml(
-            $"<font class='fontsize=m' color='yellow'>Your Role: {playerRole.GetCenterRole()}"));
+      if (!playerLookAtRole.TryGetValue(player, out var value)) {
+        player.PrintToCenterHtml(
+          $"<font class='fontsize=m' color='yellow'>Your Role: {playerRole.GetCenterRole()}");
         continue;
       }
 
@@ -81,24 +73,24 @@ public class InfoManager : IPluginBehavior {
   public void
     HandleDeadTarget(CCSPlayerController player, Role playerRole,
       CCSPlayerController target, Role targetRole) {
-    Server.NextFrame(() => player.PrintToCenterHtml(
+    player.PrintToCenterHtml(
       $"<font class='fontsize=m' color='yellow'>Your Role: {playerRole.GetCenterRole()} <br>"
       + $"<font class='fontsize=l' color='red'>{target.PlayerName}'s Corpse <br>"
-      + $"<font class='fontsize=m' color='yellow'>{target.PlayerName}'s Role: {targetRole.GetCenterRole()}"));
+      + $"<font class='fontsize=m' color='yellow'>{target.PlayerName}'s Role: {targetRole.GetCenterRole()}");
   }
 
   public void HandleAliveTarget(CCSPlayerController player, Role playerRole,
     CCSPlayerController target, Role targetRole) {
     switch (targetRole) {
       case Role.Detective:
-        Server.NextFrame(() => player.PrintToCenterHtml(
+        player.PrintToCenterHtml(
           $"<font class='fontsize=m' color='yellow'>Your Role: {playerRole.GetCenterRole()} <br>"
-          + $"<font class='fontsize=m' color='yellow'>{target.PlayerName}'s Role: {targetRole.GetCenterRole()}"));
+          + $"<font class='fontsize=m' color='yellow'>{target.PlayerName}'s Role: {targetRole.GetCenterRole()}");
         return;
       case Role.Traitor when playerRole == Role.Traitor:
-        Server.NextFrame(() => player.PrintToCenterHtml(
+        player.PrintToCenterHtml(
           $"<font class='fontsize=m' color='yellow'>Your Role: {playerRole.GetCenterRole()} <br>"
-          + $"<font class='fontsize=m' color='maroon'>{target.PlayerName}'s Role: {targetRole.GetCenterRole()}"));
+          + $"<font class='fontsize=m' color='maroon'>{target.PlayerName}'s Role: {targetRole.GetCenterRole()}");
         return;
       default:
         Server.NextFrame(() => player.PrintToCenterHtml(
@@ -109,9 +101,12 @@ public class InfoManager : IPluginBehavior {
   }
 
   public void OnTickAll() {
-    var players = _playerService.Players().Select(plr => plr.Player());
+    var players = playerService.Players()
+     .Select(plr => plr.Player())
+     .Where(p => p != null && p.IsReal())
+     .ToList();
 
-    _playerLookAtRole.Clear();
+    playerLookAtRole.Clear();
 
     foreach (var player in players) {
       if (player == null) continue;
@@ -119,12 +114,12 @@ public class InfoManager : IPluginBehavior {
 
       var target = player.GetClientPlayerAimTarget();
 
-      if (target == null) continue;
+      if (target == null || !target.IsReal()) continue;
       if (!target.IsReal()) continue;
 
       RegisterLookAtRole(player,
         new Tuple<CCSPlayerController, Role>(target,
-          _playerService.GetPlayer(target).PlayerRole()));
+          playerService.GetPlayer(target).PlayerRole()));
     }
   }
 
@@ -134,11 +129,12 @@ public class InfoManager : IPluginBehavior {
     var player = @event.Userid;
     var target = new CCSPlayerController(@event.Target);
 
-    if (!player.IsReal() || !target.IsReal()) return HookResult.Continue;
+    if (player == null || !player.IsReal() || !target.IsReal())
+      return HookResult.Continue;
 
-    _spectatorLookAtRole.TryAdd(player,
+    spectatorLookAtRole.TryAdd(player,
       new Tuple<string, Role>(target.PlayerName,
-        _playerService.GetPlayer(target).PlayerRole()));
+        playerService.GetPlayer(target).PlayerRole()));
 
     return HookResult.Continue;
   }

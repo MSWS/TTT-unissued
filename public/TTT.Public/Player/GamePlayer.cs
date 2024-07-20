@@ -4,70 +4,61 @@ using TTT.Public.Mod.Role;
 
 namespace TTT.Player;
 
-public class GamePlayer {
-  private long _credits;
-  private bool _isDead;
-  private bool _isFound;
-  private int _karma;
-  private CCSPlayerController? _killer;
-  private readonly int _playerId;
+public class GamePlayer(Role playerRole, long credits, int karma,
+  int playerId) {
+  private bool dead;
+  private bool found;
 
-  private Role _playerRole;
-  private bool _shopOpen;
+  // TODO: Use Steam ID
+  private CCSPlayerController? killer;
 
-  public GamePlayer(Role playerRole, long credits, int karma, int playerId) {
-    _playerRole = playerRole;
-    _credits    = credits;
-    _karma      = karma;
-    _killer     = null;
-    _playerId   = playerId;
-  }
+  private bool shopOpen;
 
-  public bool IsDead() { return _isDead; }
+  public bool IsDead() { return dead; }
 
-  public void SetDead(bool isDead = false) { _isDead = isDead; }
+  public void SetDead(bool isDead = false) { dead = isDead; }
 
   public CCSPlayerController? Player() {
-    return Utilities.GetPlayerFromUserid(_playerId);
+    return Utilities.GetPlayerFromUserid(playerId);
   }
 
-  public Role PlayerRole() { return _playerRole; }
+  public Role PlayerRole() { return playerRole; }
 
-  public int Karma() { return _karma; }
+  public int Karma() { return karma; }
 
-  public void SetKarma(int karma) { _karma = karma; }
+  public void SetKarma(int karma1) { karma = karma1; }
 
-  public void AddKarma(int karma) { _karma += karma; }
+  public void AddKarma(int karma1) { karma += karma1; }
 
-  public void RemoveKarma(int karma) {
-    _karma -= karma;
-    if (_karma >= 40) return;
-    _karma = 80;
+  public void RemoveKarma(int karma1) {
+    karma -= karma1;
+    if (karma >= 40) return;
+    karma = 80;
     //Server.ExecuteCommand($"css_ban #{_playerId} 1440 Karma too low");
   }
 
-  public void SetPlayerRole(Role role) { _playerRole = role; }
+  public void SetPlayerRole(Role role) { playerRole = role; }
 
-  public long Credits() { return _credits; }
+  public long Credits() { return credits; }
 
-  public void AddCredits(long increment) { _credits += increment; }
+  public void AddCredits(long increment) { credits += increment; }
 
-  public void RemoveCredits(long decrement) { _credits -= decrement; }
+  public void RemoveCredits(long decrement) { credits -= decrement; }
 
-  public void ResetCredits() { _credits = 800; }
+  public void ResetCredits() { credits = 800; }
 
-  public CCSPlayerController? Killer() { return _killer; }
+  public CCSPlayerController? Killer() { return killer; }
 
-  public void SetKiller(CCSPlayerController? killer) { _killer = killer; }
+  public void SetKiller(CCSPlayerController? killer) { this.killer = killer; }
 
-  public void SetShopOpen(bool open) { _shopOpen = open; }
+  public void SetShopOpen(bool open) { shopOpen = open; }
 
-  public bool ShopOpen() { return _shopOpen; }
+  public bool ShopOpen() { return shopOpen; }
 
   public bool SetFound(bool found) {
-    _isFound = found;
-    return _isFound;
+    this.found = found;
+    return this.found;
   }
 
-  public bool IsFound() { return _isFound; }
+  public bool IsFound() { return found; }
 }

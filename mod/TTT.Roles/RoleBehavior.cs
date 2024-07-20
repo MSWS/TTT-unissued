@@ -30,14 +30,6 @@ public class RoleBehavior : IRoleService, IPluginBehavior {
   public void Start(BasePlugin parent) {
     ModelHandler.RegisterListener(parent);
     _roundService.Start(parent);
-    /*
-    parent.RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnect);
-    parent.RegisterEventHandler<EventRoundFreezeEnd>(OnRoundStart);
-    parent.RegisterEventHandler<EventRoundEnd>(OnRoundEnd);
-    parent.RegisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
-    parent.RegisterEventHandler<EventPlayerDeath>(OnPlayerDeath, HookMode.Pre);
-    parent.RegisterEventHandler<EventGameStart>(OnMapStart);
-    */
   }
 
   public IRoundService GetRoundService() { return _roundService; }
@@ -68,62 +60,62 @@ public class RoleBehavior : IRoleService, IPluginBehavior {
       AddDetective(chosen);
     }
 
-    AddInnocents(eligible);
+    AddInnocents(eligible.ToArray());
   }
 
   public ISet<CCSPlayerController> GetTraitors() {
-    return service.Players()
-     .Where(player => player.PlayerRole() == Role.Traitor)
-     .Select(player => player.Player())
-     .ToHashSet();
+    return GetByRole(Role.Traitor);
   }
 
   public ISet<CCSPlayerController> GetDetectives() {
-    return service.Players()
-     .Where(player => player.PlayerRole() == Role.Detective)
-     .Select(player => player.Player())
-     .ToHashSet();
+    return GetByRole(Role.Detective);
   }
 
   public ISet<CCSPlayerController> GetInnocents() {
-    return service.Players()
-     .Where(player => player.PlayerRole() == Role.Innocent)
-     .Select(player => player.Player())
-     .ToHashSet();
+    return GetByRole(Role.Innocent);
   }
 
+  public ISet<CCSPlayerController> GetByRole(Role role) {
+    return service.Players()
+     .Where(player => player.PlayerRole() == role)
+     .Select(player => player.Player())
+     .Where(p => p != null)
+     .ToHashSet()!;
+  }
 
   public Role GetRole(CCSPlayerController player) {
     return service.GetPlayer(player).PlayerRole();
   }
 
-  public void AddTraitor(CCSPlayerController player) {
-    service.GetPlayer(player).SetPlayerRole(Role.Traitor);
-    player.SwitchTeam(CsTeam.Terrorist);
-    player.PrintToCenter(
-      Role.Traitor.FormatStringFullBefore("You are now a(n)"));
-    player.PrintToChat(Role.Traitor.FormatStringFullBefore("You are now a(n)"));
-    ModelHandler.SetModelNextServerFrame(player,
-      ModelHandler.ModelPathTmPhoenix);
+  public void AddTraitor(params CCSPlayerController[] players) {
+    foreach (var player in players) {
+      service.GetPlayer(player).SetPlayerRole(Role.Traitor);
+      player.SwitchTeam(CsTeam.Terrorist);
+      player.PrintToCenter(
+        Role.Traitor.FormatStringFullBefore("You are now a"));
+      player.PrintToChat(Role.Traitor.FormatStringFullBefore("You are now a"));
+      ModelHandler.SetModel(player, ModelHandler.ModelPathTmPhoenix);
+    }
   }
 
-  public void AddDetective(CCSPlayerController player) {
-    service.GetPlayer(player).SetPlayerRole(Role.Detective);
-    player.SwitchTeam(CsTeam.CounterTerrorist);
-    player.PrintToCenter(
-      Role.Detective.FormatStringFullBefore("You are now a(n)"));
-    player.GiveNamedItem(CsItem.Taser);
-    ModelHandler.SetModelNextServerFrame(player, ModelHandler.ModelPathCtmSas);
+  public void AddDetective(params CCSPlayerController[] players) {
+    foreach (var player in players) {
+      service.GetPlayer(player).SetPlayerRole(Role.Detective);
+      player.SwitchTeam(CsTeam.CounterTerrorist);
+      player.PrintToCenter(
+        Role.Detective.FormatStringFullBefore("You are now a"));
+      player.GiveNamedItem(CsItem.Taser);
+      ModelHandler.SetModel(player, ModelHandler.ModelPathCtmSas);
+    }
   }
 
-  public void AddInnocents(IEnumerable<CCSPlayerController> players) {
+  public void AddInnocents(params CCSPlayerController[] players) {
     foreach (var player in players) {
       service.GetPlayer(player).SetPlayerRole(Role.Innocent);
       player.PrintToCenter(
         Role.Innocent.FormatStringFullBefore("You are now an"));
       player.SwitchTeam(CsTeam.Terrorist);
-      ModelHandler.SetModelNextServerFrame(player,
-        ModelHandler.ModelPathTmPhoenix);
+      ModelHandler.SetModel(player, ModelHandler.ModelPathTmPhoenix);
     }
   }
 
@@ -140,7 +132,7 @@ public class RoleBehavior : IRoleService, IPluginBehavior {
     foreach (var key in service.Players()) {
       key.SetPlayerRole(Role.Unassigned);
       if (key.Player() == null) continue;
-      RemoveColor(key.Player());
+      RemoveColor(key.Player()!);
     }
   }
 
@@ -152,12 +144,7 @@ public class RoleBehavior : IRoleService, IPluginBehavior {
      .Where(player => player.IsReal() && player.Team != CsTeam.None
         || player.Team != CsTeam.Spectator)) {
       player.RemoveWeapons();
-      if (!string.IsNullOrEmpty("weapon_glock"))
-        player.GiveNamedItem("weapon_glock");
-
-      if (!string.IsNullOrEmpty(string.Empty))
-        player.GiveNamedItem(string.Empty);
-
+      player.GiveNamedItem("weapon_glock");
       player.GiveNamedItem("weapon_knife");
       service.GetPlayer(player).ModifyKarma();
     }
@@ -183,17 +170,14 @@ public class RoleBehavior : IRoleService, IPluginBehavior {
     var playerWhoWasDamaged = @event.Userid;
     var attacker            = @event.Attacker;
 
-
     if (playerWhoWasDamaged == null) return HookResult.Continue;
 
     SetColor(playerWhoWasDamaged);
-
     playerWhoWasDamaged.ModifyScoreBoard();
 
     service.GetPlayer(playerWhoWasDamaged).SetKiller(attacker);
 
     if (IsTraitor(playerWhoWasDamaged)) _traitorsLeft--;
-
     if (IsDetective(playerWhoWasDamaged) || IsInnocent(playerWhoWasDamaged))
       _innocentsLeft--;
 

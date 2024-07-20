@@ -15,24 +15,13 @@ public class TraitorRoom(IPlayerService service) : IPluginBehavior {
     });
   }
 
-
   public void OpenTraitorRoom(CCSPlayerController player) {
     if ((player.Buttons & PlayerButtons.Use) == 0) return;
 
     var traitorRoom = player.GetClientPlayerTraitorRoom();
 
-    if (traitorRoom == null) {
-      Server.NextFrame(() => player.PrintToCenter("No door has been found!"));
-      return;
-    }
-
-    if (traitorRoom.Globalname is not "traitor_door") {
-      Server.NextFrame(
-        () => player.PrintToCenter("Door is not a traitor room!"));
-      return;
-    }
+    if (traitorRoom?.Globalname != "traitor_door") return;
 
     traitorRoom.AcceptInput("Open");
-    Server.NextFrame(() => player.PrintToCenter("Found traitor room!"));
   }
 }

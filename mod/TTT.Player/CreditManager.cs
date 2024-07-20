@@ -29,7 +29,7 @@ public class CreditManager(IPlayerService playerService) : IPluginBehavior {
 
     if (attackerPlayer.PlayerRole() != Role.Traitor
       && victimPlayer.PlayerRole() == Role.Traitor) {
-      attackerPlayer.AddCredits(250);
+      attackerPlayer.AddCredits(500);
       return HookResult.Continue;
     }
 
