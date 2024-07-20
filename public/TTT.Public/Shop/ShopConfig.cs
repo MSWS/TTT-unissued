@@ -1,8 +1,3 @@
-﻿using CounterStrikeSharp.API.Core;
+﻿namespace TTT.Public.Shop;
 
-namespace TTT.Public.Shop;
-
-public class ShopConfig
-{
-    
-}
+public class ShopConfig { }
