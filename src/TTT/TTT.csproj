@@ -6,6 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\mod\TTT.Debug\TTT.Debug.csproj" />
         <ProjectReference Include="..\..\public\TTT.Public\TTT.Public.csproj"/>
         <ProjectReference Include="..\..\mod\TTT.Detective\TTT.Detective.csproj"/>
         <ProjectReference Include="..\..\mod\TTT.Roles\TTT.Roles.csproj"/>

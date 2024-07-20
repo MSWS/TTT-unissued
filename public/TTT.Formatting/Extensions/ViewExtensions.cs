@@ -56,7 +56,7 @@ public static class ViewExtensions {
 
   public static IView
     ToPlayerChat(this IView view, CCSPlayerController player) {
-    if (!player.IsReal() || player.IsBot) return view;
+    if (player.IsBot) return view;
 
     var writer = view.ToWriter();
 
