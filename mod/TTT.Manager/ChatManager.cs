@@ -12,7 +12,7 @@ public class ChatManager(IRoleService roleService) : IPluginBehavior
 {
     public void Start(BasePlugin plugin)
     {
-        plugin.AddCommandListener("say_team", OnSayTeam);
+        //plugin.AddCommandListener("say_team", OnSayTeam);
     }
 
     private HookResult OnSayTeam(CCSPlayerController? caller, CommandInfo info)
