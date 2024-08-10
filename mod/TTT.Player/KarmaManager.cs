@@ -17,27 +17,40 @@ public class KarmaManager(IPlayerService playerService) : IPluginBehavior
     [GameEventHandler]
     public HookResult OnPlayerDeath(EventPlayerDeath @event, GameEventInfo info)
     {
-        var killedPlayer = @event.Userid;
-        var killer = @event.Attacker;
-        if (killedPlayer == null || !killedPlayer.IsReal()) return HookResult.Continue;
-        if (killer == null || !killer.IsReal()) return HookResult.Continue;
+        var attacker = @event.Attacker;
+        var victim = @event.Userid;
         
-        var gpKiller = playerService.GetPlayer(killer);
-        var gpKilled = playerService.GetPlayer(killedPlayer);
+        if (attacker == null || victim == null) return HookResult.Continue;
+        if (attacker == victim) return HookResult.Continue;
         
-        var killerRole = gpKiller.PlayerRole();
-        var killedRole = gpKilled.PlayerRole();
+        GamePlayer gpAttacker = playerService.GetPlayer(attacker);
+        GamePlayer gpVictim = playerService.GetPlayer(victim);
+        
+        var AttackerRole = gpAttacker.PlayerRole();
+        var VictimRole = gpVictim.PlayerRole();
 
-        if (killerRole == killedRole)
+        if (AttackerRole == VictimRole)
         {
-            gpKiller.RemoveKarma(5);
+            gpAttacker.RemoveKarma(5);
             return HookResult.Continue;
         }
         
-        if (killedRole == Role.Traitor)
+        if (VictimRole == Role.Traitor)
         {
-            gpKiller.AddKarma(2);
+            gpAttacker.AddKarma(3);
+            return HookResult.Continue;
         }
+
+        if (VictimRole == Role.Detective && AttackerRole == Role.Innocent) {
+            gpAttacker.RemoveKarma(5);
+            return HookResult.Continue;
+        }
+
+        if (VictimRole == Role.Detective && AttackerRole == Role.Traitor) {
+            gpAttacker.AddKarma(3);
+            return HookResult.Continue;
+        }
+
         return HookResult.Continue;
     }
 }

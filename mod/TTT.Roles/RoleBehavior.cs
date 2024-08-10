@@ -87,39 +87,36 @@ public class RoleBehavior : IRoleService, IPluginBehavior
     {
         info.DontBroadcast = true;
 
-        var playerWhoWasDamaged = @event.Userid;
+        var victim = @event.Userid;
         var attacker = @event.Attacker;
         
-        
-        
-        
-        if (playerWhoWasDamaged == null) return HookResult.Continue;
+        if (victim == null) return HookResult.Continue;
 
-        SetColor(playerWhoWasDamaged);
+        SetColor(victim);
         
-        playerWhoWasDamaged.ModifyScoreBoard();
+        victim.ModifyScoreBoard();
 
-        service.GetPlayer(playerWhoWasDamaged).SetKiller(attacker);
+        service.GetPlayer(victim).SetKiller(attacker);
         
-        if (IsTraitor(playerWhoWasDamaged)) _traitorsLeft--;
+        if (IsTraitor(victim)) _traitorsLeft--;
 
-        if (IsDetective(playerWhoWasDamaged) || IsInnocent(playerWhoWasDamaged)) _innocentsLeft--;
+        if (IsDetective(victim) || IsInnocent(victim)) _innocentsLeft--;
 
         if (_traitorsLeft == 0 || _innocentsLeft == 0) Server.NextFrame(() => _roundService.ForceEnd());
 
         Server.NextFrame(() =>
         {
             Server.PrintToChatAll(
-                StringUtils.FormatTTT($"{GetRole(playerWhoWasDamaged).FormatStringFullAfter(" has been found.")}"));
+                StringUtils.FormatTTT($"{GetRole(victim).FormatStringFullAfter(" has been found.")}"));
 
-            if (attacker == playerWhoWasDamaged || attacker == null) return;
+            if (attacker == victim || attacker == null) return;
 
             attacker.ModifyScoreBoard();
 
-            playerWhoWasDamaged.PrintToChat(StringUtils.FormatTTT(
+            victim.PrintToChat(StringUtils.FormatTTT(
                 $"You were killed by {GetRole(attacker).FormatStringFullAfter(" " + attacker.PlayerName)}."));
             attacker.PrintToChat(StringUtils.FormatTTT(
-                $"You killed {GetRole(playerWhoWasDamaged).FormatStringFullAfter(" " + playerWhoWasDamaged.PlayerName)}."));
+                $"You killed {GetRole(victim).FormatStringFullAfter(" " + victim.PlayerName)}."));
         });
 
         return HookResult.Continue;
