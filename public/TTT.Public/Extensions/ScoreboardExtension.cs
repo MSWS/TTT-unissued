@@ -27,8 +27,8 @@ public static class ScoreboardExtension
     
     public static void ModifyKarma(this GamePlayer gamePlayer)
     {
-        var player = gamePlayer.Player();
-        if (player == null) return;
+        if (gamePlayer.Player() == null) return;
+
         SetScore(gamePlayer);
     }
 
@@ -44,7 +44,7 @@ public static class ScoreboardExtension
     private static void KillIconTest(CCSPlayerController player)
     {
         var matchStats = player.ActionTrackingServices;
-        if (matchStats.NumRoundKills == 0 && matchStats.NumRoundKillsHeadshots == 0) return;
+        if (matchStats == null || matchStats.NumRoundKills == 0 && matchStats.NumRoundKillsHeadshots == 0) return;
         matchStats.NumRoundKills = 0;
         matchStats.NumRoundKillsHeadshots = 0;
         Utilities.SetStateChanged(player, "CCSPlayerController_ActionTrackingServices", "m_iNumRoundKills");

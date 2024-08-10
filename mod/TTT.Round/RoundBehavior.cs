@@ -19,11 +19,13 @@ namespace TTT.Round;
 public class RoundBehavior(IRoleService _roleService) : IRoundService
 {
     private Round? _round;
+    private BasePlugin? _plugin;
     private RoundStatus _roundStatus = RoundStatus.Paused;
     private int _roundId = 1;
     
     public void Start(BasePlugin plugin)
     {
+        _plugin = plugin;
         plugin.RegisterListener<Listeners.OnTick>(TickWaiting);
         plugin.AddCommandListener("jointeam", OnTeamJoin);
         VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Hook(BlockDamage, HookMode.Pre);
@@ -49,6 +51,7 @@ public class RoundBehavior(IRoleService _roleService) : IRoundService
                 ForceStart();
                 break;
             case RoundStatus.Paused:
+                WaitForPlayers();
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(roundStatus), roundStatus, "Invalid round status.");
@@ -56,6 +59,45 @@ public class RoundBehavior(IRoleService _roleService) : IRoundService
         _roundStatus = roundStatus;
     }
 
+    public void WaitForPlayers()
+    {
+        var players = Utilities.GetPlayers().Where(player => player.IsValid && player.PawnIsAlive).ToList();
+
+        if (players.Count >= 2)
+        {
+            _round = new Round(_roleService, null, _roundId);
+            Server.PrintToChatAll(StringUtils.FormatTTT("Enough players are present. Starting the round in 10 seconds."));
+            
+            _plugin?.AddTimer(30.0f, () =>
+            {
+                var currentPlayers = Utilities.GetPlayers().Where(player => player.IsValid && player.PawnIsAlive).ToList();
+
+                if (currentPlayers.Count >= 2)
+                {
+                    SetRoundStatus(RoundStatus.Started);
+                    return; 
+                }
+                else
+                {
+                    Server.PrintToChatAll(StringUtils.FormatTTT("Waiting for more players to join the game."));
+                }
+            }, TimerFlags.REPEAT);
+        }
+        else
+        {
+            _plugin?.AddTimer(30.0f, () =>
+            {
+                var currentPlayers = Utilities.GetPlayers().Where(player => player.IsValid && player.PawnIsAlive).ToList();
+                if (currentPlayers.Count >= 2)
+                {
+                    SetRoundStatus(RoundStatus.Started);
+                    return;
+                }
+                
+                Server.PrintToChatAll(StringUtils.FormatTTT("Waiting for more players to join the game."));
+            }, TimerFlags.REPEAT);
+        }
+    }
     public void TickWaiting()
     {
         if (_round == null)
@@ -65,27 +107,23 @@ public class RoundBehavior(IRoleService _roleService) : IRoundService
         }
 
         if (_roundStatus != RoundStatus.Waiting) return;
-
         _round.Tick();
 
         if (_round.GraceTime() != 0) return;
         
-        
         if (Utilities.GetPlayers().Where(player => player is { IsValid: true, PawnIsAlive: true }).ToList().Count <= 2)
         {
-            Server.PrintToChatAll(StringUtils.FormatTTT("Not enough players to start the round. Round has been ended."));
-            _roundStatus = RoundStatus.Paused;
+            Server.PrintToChatAll(StringUtils.FormatTTT("Not enough players to start the round."));
+            SetRoundStatus(RoundStatus.Paused); 
             return; 
         }
         
         SetRoundStatus(RoundStatus.Started); 
-        
     }
 
     public void ForceStart()
     {
-        foreach (var player in Utilities.GetPlayers().Where(player => player.IsReal()).Where(player => player.IsReal())
-                     .ToList()) player.VoiceFlags = VoiceFlags.Normal;
+        foreach (var player in Utilities.GetPlayers().Where(player => player.IsReal()).Where(player => player.IsReal()).ToList()) player.VoiceFlags = VoiceFlags.Normal;
         _round!.Start();
         ServerExtensions.GetGameRules().RoundTime = 360;
         Utilities.SetStateChanged(ServerExtensions.GetGameRulesProxy(), "CCSGameRulesProxy", "m_pGameRules");

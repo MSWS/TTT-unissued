@@ -33,38 +33,42 @@ public class DetectiveManager(IPlayerService roleService) : IDetectiveService, I
     public HookResult OnZeus(DynamicHook hook)
     {
         var ent = hook.GetParam<CBaseEntity>(0);
+        var victim = player(ent);
 
-        var playerWhoWasDamaged = player(ent);
-
-        if (playerWhoWasDamaged == null) return HookResult.Continue;
+        if (victim == null) return HookResult.Continue;
 
         var info = hook.GetParam<CTakeDamageInfo>(1);
-
-        CCSPlayerController? attacker = null;
-
-        if (info.Attacker.Value != null)
+        var attacker = info.Attacker.Value;
+        if (attacker is not null and CCSPlayerPawn playerPawn)
         {
-            var playerWhoAttacked = info.Attacker.Value.As<CCSPlayerPawn>();
+            var controller = playerPawn.Controller.Value;
+            if (controller is not null and CCSPlayerController playerController)
+            {
+                if (info.BitsDamageType is not 256) return HookResult.Continue;
+                info.Damage = 0;
 
-            attacker = playerWhoAttacked.Controller.Value.As<CCSPlayerController>();
-
+                var targetRole = roleService.GetPlayer(victim);
+                Server.NextFrame(() =>
+                {
+                    playerController.PrintToChat(StringUtils.FormatTTT($"You tased player {victim.PlayerName} they are a {targetRole.PlayerRole().FormatRoleFull()}"));
+                });
+                
+                return HookResult.Stop;
+            }
         }
+        return HookResult.Continue;
 
-        if (info.BitsDamageType is not 256) return HookResult.Continue;
-        if (attacker == null) return HookResult.Continue;
+        // whoever wrote this shit needs help
+        // CCSPlayerController? attacker = null;
 
-        info.Damage = 0;
+        // if (info.Attacker.Value != null)
+        // {
+        //     var playerWhoAttacked = info.Attacker.Value.As<CCSPlayerPawn>();
 
-        var targetRole = roleService.GetPlayer(playerWhoWasDamaged);
-
-        Server.NextFrame(() =>
-        {
-            attacker.PrintToChat(
-                StringUtils.FormatTTT(
-                    $"You tased player {playerWhoWasDamaged.PlayerName} they are a {targetRole.PlayerRole().FormatRoleFull()}"));
-        });
-        
-        return HookResult.Stop;
+        //     if (playerWhoAttacked.Controller.Value != null) {
+        //         attacker = playerWhoAttacked.Controller.Value.As<CCSPlayerController>();
+        //     }
+        // }
     }
 
     
@@ -110,38 +114,17 @@ public class DetectiveManager(IPlayerService roleService) : IDetectiveService, I
         Server.NextFrame(() => { Server.PrintToChatAll(message); });
     }
     
-    //to be moved to a utility class
     public static CCSPlayerController? player(CEntityInstance? instance)
     {
-        if (instance == null)
-        {
+        if (instance == null || instance.DesignerName != "player") {
             return null;
         }
 
-        if (instance.DesignerName != "player")
-        {
+        CCSPlayerPawn player_pawn = Utilities.GetEntityFromIndex<CCSPlayerPawn>((int)instance.Index);
+        if (player_pawn == null || !player_pawn.IsValid || player_pawn.OriginalController == null || !player_pawn.OriginalController.IsValid) {
             return null;
         }
 
-        // grab the pawn index
-        int player_index = (int)instance.Index;
-
-        // grab player controller from pawn
-        CCSPlayerPawn player_pawn = Utilities.GetEntityFromIndex<CCSPlayerPawn>(player_index);
-
-        // pawn valid
-        if (player_pawn == null || !player_pawn.IsValid)
-        {
-            return null;
-        }
-
-        // controller valid
-        if (player_pawn.OriginalController == null || !player_pawn.OriginalController.IsValid)
-        {
-            return null;
-        }
-
-        // any further validity is up to the caller
         return player_pawn.OriginalController.Value;
     }
 }

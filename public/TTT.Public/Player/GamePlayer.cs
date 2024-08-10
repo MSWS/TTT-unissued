@@ -64,9 +64,6 @@ public class GamePlayer
     public void RemoveKarma(int karma)
     {
         _karma -= karma;
-        if (_karma >= 40) return;
-        _karma = 80;
-        //Server.ExecuteCommand($"css_ban #{_playerId} 1440 Karma too low");
     }
 
     public void SetPlayerRole(Role role)
