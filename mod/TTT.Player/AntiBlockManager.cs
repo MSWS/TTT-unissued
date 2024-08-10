@@ -15,12 +15,13 @@ public class AntiBlockManager : IPluginBehavior
 {
     public void Start(BasePlugin plugin)
     {
+
     }
 
     [GameEventHandler]
     private HookResult Event_PlayerSpawn(EventPlayerSpawn @event, GameEventInfo info)
     {
-        if (!@event.Userid.IsValid) return HookResult.Continue;
+        if (@event == null ||@event.Userid == null) return HookResult.Continue;
 
         var player = @event.Userid;
 
@@ -39,6 +40,8 @@ public class AntiBlockManager : IPluginBehavior
 
     private void PlayerSpawnNextFrame(CCSPlayerController player, CHandle<CCSPlayerPawn> pawn)
     {
+        if (pawn == null || pawn.Value == null) return;
+        
         pawn.Value.Collision.CollisionGroup = (byte)CollisionGroup.COLLISION_GROUP_DISSOLVING;
 
         pawn.Value.Collision.CollisionAttribute.CollisionGroup = (byte)CollisionGroup.COLLISION_GROUP_DISSOLVING;

@@ -1,0 +1,13 @@
+C:\Users\god\Desktop\Github\TTT-unissued\public\TTT.Public\bin\Debug\net8.0\TTT.Public.deps.json
+C:\Users\god\Desktop\Github\TTT-unissued\public\TTT.Public\bin\Debug\net8.0\TTT.Public.dll
+C:\Users\god\Desktop\Github\TTT-unissued\public\TTT.Public\bin\Debug\net8.0\TTT.Public.pdb
+C:\Users\god\Desktop\Github\TTT-unissued\public\TTT.Public\obj\Debug\net8.0\TTT.Public.csproj.AssemblyReference.cache
+C:\Users\god\Desktop\Github\TTT-unissued\public\TTT.Public\obj\Debug\net8.0\TTT.Public.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\god\Desktop\Github\TTT-unissued\public\TTT.Public\obj\Debug\net8.0\TTT.Public.AssemblyInfoInputs.cache
+C:\Users\god\Desktop\Github\TTT-unissued\public\TTT.Public\obj\Debug\net8.0\TTT.Public.AssemblyInfo.cs
+C:\Users\god\Desktop\Github\TTT-unissued\public\TTT.Public\obj\Debug\net8.0\TTT.Public.csproj.CoreCompileInputs.cache
+C:\Users\god\Desktop\Github\TTT-unissued\public\TTT.Public\obj\Debug\net8.0\TTT.Public.sourcelink.json
+C:\Users\god\Desktop\Github\TTT-unissued\public\TTT.Public\obj\Debug\net8.0\TTT.Public.dll
+C:\Users\god\Desktop\Github\TTT-unissued\public\TTT.Public\obj\Debug\net8.0\refint\TTT.Public.dll
+C:\Users\god\Desktop\Github\TTT-unissued\public\TTT.Public\obj\Debug\net8.0\TTT.Public.pdb
+C:\Users\god\Desktop\Github\TTT-unissued\public\TTT.Public\obj\Debug\net8.0\ref\TTT.Public.dll

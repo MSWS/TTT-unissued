@@ -1,0 +1,16 @@
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Manager\bin\Debug\net8.0\TTT.Manager.deps.json
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Manager\bin\Debug\net8.0\TTT.Manager.dll
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Manager\bin\Debug\net8.0\TTT.Manager.pdb
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Manager\bin\Debug\net8.0\TTT.Public.dll
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Manager\bin\Debug\net8.0\TTT.Public.pdb
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Manager\obj\Debug\net8.0\TTT.Manager.csproj.AssemblyReference.cache
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Manager\obj\Debug\net8.0\TTT.Manager.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Manager\obj\Debug\net8.0\TTT.Manager.AssemblyInfoInputs.cache
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Manager\obj\Debug\net8.0\TTT.Manager.AssemblyInfo.cs
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Manager\obj\Debug\net8.0\TTT.Manager.csproj.CoreCompileInputs.cache
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Manager\obj\Debug\net8.0\TTT.Manager.sourcelink.json
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Manager\obj\Debug\net8.0\TTT.Mana.B05CB464.Up2Date
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Manager\obj\Debug\net8.0\TTT.Manager.dll
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Manager\obj\Debug\net8.0\refint\TTT.Manager.dll
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Manager\obj\Debug\net8.0\TTT.Manager.pdb
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Manager\obj\Debug\net8.0\ref\TTT.Manager.dll

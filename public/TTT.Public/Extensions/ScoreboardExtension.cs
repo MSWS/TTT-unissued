@@ -44,7 +44,7 @@ public static class ScoreboardExtension
     private static void KillIconTest(CCSPlayerController player)
     {
         var matchStats = player.ActionTrackingServices;
-        if (matchStats.NumRoundKills == 0 && matchStats.NumRoundKillsHeadshots == 0) return;
+        if (matchStats == null || matchStats.NumRoundKills == 0 && matchStats.NumRoundKillsHeadshots == 0) return;
         matchStats.NumRoundKills = 0;
         matchStats.NumRoundKillsHeadshots = 0;
         Utilities.SetStateChanged(player, "CCSPlayerController_ActionTrackingServices", "m_iNumRoundKills");

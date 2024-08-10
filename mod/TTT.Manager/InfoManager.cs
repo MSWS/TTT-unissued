@@ -145,7 +145,7 @@ public class InfoManager : IPluginBehavior
         var player = @event.Userid;
         var target = new CCSPlayerController(@event.Target);
 
-        if (!player.IsReal() || !target.IsReal()) return HookResult.Continue;
+        if (player == null || !player.IsReal() || !target.IsReal()) return HookResult.Continue;
         
         _spectatorLookAtRole.TryAdd(player, new Tuple<string, Role>(target.PlayerName, _playerService.GetPlayer(target).PlayerRole()));
         

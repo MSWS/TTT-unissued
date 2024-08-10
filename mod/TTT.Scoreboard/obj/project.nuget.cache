@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "IPkz1skyIwQ=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\god\\Desktop\\Github\\TTT-unissued\\mod\\TTT.Scoreboard\\TTT.Scoreboard.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\god\\.nuget\\packages\\microsoft.netcore.app.ref\\7.0.20\\microsoft.netcore.app.ref.7.0.20.nupkg.sha512",
+    "C:\\Users\\god\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\7.0.20\\microsoft.windowsdesktop.app.ref.7.0.20.nupkg.sha512",
+    "C:\\Users\\god\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\7.0.20\\microsoft.aspnetcore.app.ref.7.0.20.nupkg.sha512"
+  ],
+  "logs": []
+}

@@ -73,8 +73,9 @@ public class RoleBehavior : IRoleService, IPluginBehavior
     [GameEventHandler]
     public HookResult OnPlayerConnect(EventPlayerConnectFull @event, GameEventInfo info)
     {
-        if (Utilities.GetPlayers().Count(player =>
-                player.IsReal() && player.Team != CsTeam.None || player.Team == CsTeam.Spectator) < 3)
+        if (@event.Userid == null || @event.Userid.IsBot) return HookResult.Continue;
+        
+        if (Utilities.GetPlayers().Count(player => player.IsReal() && player.Team != CsTeam.None || player.Team == CsTeam.Spectator) < 3)
         {
             _roundService.ForceEnd();
         }
@@ -142,6 +143,8 @@ public class RoleBehavior : IRoleService, IPluginBehavior
     public HookResult OnPlayerDisconnect(EventPlayerDisconnect @event, GameEventInfo info)
     {
         var player = @event.Userid;
+        if (player == null) return HookResult.Continue;
+        
         Server.NextFrame(() =>
         {
             service.RemovePlayer(player);

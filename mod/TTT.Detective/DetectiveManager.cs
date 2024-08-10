@@ -46,8 +46,9 @@ public class DetectiveManager(IPlayerService roleService) : IDetectiveService, I
         {
             var playerWhoAttacked = info.Attacker.Value.As<CCSPlayerPawn>();
 
-            attacker = playerWhoAttacked.Controller.Value.As<CCSPlayerController>();
-
+            if (playerWhoAttacked.Controller.Value != null) {
+                attacker = playerWhoAttacked.Controller.Value.As<CCSPlayerController>();
+            }
         }
 
         if (info.BitsDamageType is not 256) return HookResult.Continue;
@@ -110,38 +111,17 @@ public class DetectiveManager(IPlayerService roleService) : IDetectiveService, I
         Server.NextFrame(() => { Server.PrintToChatAll(message); });
     }
     
-    //to be moved to a utility class
     public static CCSPlayerController? player(CEntityInstance? instance)
     {
-        if (instance == null)
-        {
+        if (instance == null || instance.DesignerName != "player") {
             return null;
         }
 
-        if (instance.DesignerName != "player")
-        {
+        CCSPlayerPawn player_pawn = Utilities.GetEntityFromIndex<CCSPlayerPawn>((int)instance.Index);
+        if (player_pawn == null || !player_pawn.IsValid || player_pawn.OriginalController == null || !player_pawn.OriginalController.IsValid) {
             return null;
         }
 
-        // grab the pawn index
-        int player_index = (int)instance.Index;
-
-        // grab player controller from pawn
-        CCSPlayerPawn player_pawn = Utilities.GetEntityFromIndex<CCSPlayerPawn>(player_index);
-
-        // pawn valid
-        if (player_pawn == null || !player_pawn.IsValid)
-        {
-            return null;
-        }
-
-        // controller valid
-        if (player_pawn.OriginalController == null || !player_pawn.OriginalController.IsValid)
-        {
-            return null;
-        }
-
-        // any further validity is up to the caller
         return player_pawn.OriginalController.Value;
     }
 }

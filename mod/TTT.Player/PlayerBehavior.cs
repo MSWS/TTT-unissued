@@ -35,7 +35,7 @@ public class PlayerBehavior() : IPlayerService, IPluginBehavior
     
     public void CreatePlayer(CCSPlayerController player)
     {
-        if (_players.ContainsKey(player)) return;
+        if (_players.ContainsKey(player) || player.UserId == null) return;
         _players.Add(player, new GamePlayer(Role.Unassigned, 0, 110, player.UserId.Value));
     }
     

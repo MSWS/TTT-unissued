@@ -1,0 +1,16 @@
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Shop\bin\Debug\net8.0\TTT.Shop.deps.json
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Shop\bin\Debug\net8.0\TTT.Shop.dll
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Shop\bin\Debug\net8.0\TTT.Shop.pdb
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Shop\bin\Debug\net8.0\TTT.Public.dll
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Shop\bin\Debug\net8.0\TTT.Public.pdb
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Shop\obj\Debug\net8.0\TTT.Shop.csproj.AssemblyReference.cache
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Shop\obj\Debug\net8.0\TTT.Shop.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Shop\obj\Debug\net8.0\TTT.Shop.AssemblyInfoInputs.cache
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Shop\obj\Debug\net8.0\TTT.Shop.AssemblyInfo.cs
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Shop\obj\Debug\net8.0\TTT.Shop.csproj.CoreCompileInputs.cache
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Shop\obj\Debug\net8.0\TTT.Shop.sourcelink.json
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Shop\obj\Debug\net8.0\TTT.Shop.csproj.Up2Date
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Shop\obj\Debug\net8.0\TTT.Shop.dll
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Shop\obj\Debug\net8.0\refint\TTT.Shop.dll
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Shop\obj\Debug\net8.0\TTT.Shop.pdb
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Shop\obj\Debug\net8.0\ref\TTT.Shop.dll

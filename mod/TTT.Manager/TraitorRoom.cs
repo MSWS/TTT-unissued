@@ -2,12 +2,14 @@
 using CounterStrikeSharp.API.Core;
 using TTT.Public.Behaviors;
 using TTT.Public.Extensions;
+using TTT.Public.Mod.Logs;
 using TTT.Public.Player;
 
 namespace TTT.Manager;
 
 public class TraitorRoom(IPlayerService service) : IPluginBehavior
 {
+    private readonly IPlayerService _service = service;
     public void Start(BasePlugin plugin)
     {
         plugin.AddTimer(0.1f, () =>

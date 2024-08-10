@@ -25,6 +25,8 @@ public class ModelHandler
     
     public static void SetModel(CCSPlayerController player, string modelPath)
     {
+        if (player == null || player.PlayerPawn == null || player.PlayerPawn.Value == null) return;
+        
         player.PlayerPawn.Value.SetModel(modelPath);
     }
     

@@ -72,7 +72,7 @@ public class MuteManager : IMuteService, IPluginBehavior
     private void OnPlayerSpeak(int playerSlot)
     {
         var player = Utilities.GetPlayerFromSlot(playerSlot);
-        if (!player.IsReal())
+        if (player == null || !player.IsReal())
             return;
 
         if (!player.PawnIsAlive && !BypassMute(player))

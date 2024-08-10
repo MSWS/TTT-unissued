@@ -1,0 +1,16 @@
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Player\bin\Debug\net8.0\TTT.Player.deps.json
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Player\bin\Debug\net8.0\TTT.Player.dll
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Player\bin\Debug\net8.0\TTT.Player.pdb
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Player\bin\Debug\net8.0\TTT.Public.dll
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Player\bin\Debug\net8.0\TTT.Public.pdb
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Player\obj\Debug\net8.0\TTT.Player.csproj.AssemblyReference.cache
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Player\obj\Debug\net8.0\TTT.Player.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Player\obj\Debug\net8.0\TTT.Player.AssemblyInfoInputs.cache
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Player\obj\Debug\net8.0\TTT.Player.AssemblyInfo.cs
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Player\obj\Debug\net8.0\TTT.Player.csproj.CoreCompileInputs.cache
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Player\obj\Debug\net8.0\TTT.Player.sourcelink.json
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Player\obj\Debug\net8.0\TTT.Player.csproj.Up2Date
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Player\obj\Debug\net8.0\TTT.Player.dll
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Player\obj\Debug\net8.0\refint\TTT.Player.dll
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Player\obj\Debug\net8.0\TTT.Player.pdb
+C:\Users\god\Desktop\Github\TTT-unissued\mod\TTT.Player\obj\Debug\net8.0\ref\TTT.Player.dll

@@ -45,6 +45,7 @@ public class DatabaseService
             command.Connection = _connector;
             await command.ExecuteNonQueryAsync();
         });
+
         return new GamePlayer(Role.Unassigned, 800, 0, player.UserId.Value);
     }
 
