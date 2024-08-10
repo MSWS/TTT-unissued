@@ -27,8 +27,8 @@ public static class ScoreboardExtension
     
     public static void ModifyKarma(this GamePlayer gamePlayer)
     {
-        var player = gamePlayer.Player();
-        if (player == null) return;
+        if (gamePlayer.Player() == null) return;
+
         SetScore(gamePlayer);
     }
 

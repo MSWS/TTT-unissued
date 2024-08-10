@@ -63,12 +63,22 @@ public class PlayerBehavior() : IPlayerService, IPluginBehavior
 
     public List<GamePlayer> Players()
     {
-        return _players.Values.ToList();
+        return [.. _players.Values];
     }
 
     public GamePlayer GetPlayer(CCSPlayerController player)
     {
-        return _players[player];
+        if (player == null || _players == null)
+        {
+            throw new ArgumentNullException(nameof(player), "Player or Players dictionary cannot be null");
+        }
+
+        if (_players.TryGetValue(player, out var gamePlayer))
+        {
+            return gamePlayer;
+        }
+
+        return null;
     }
 
     public void RemovePlayer(CCSPlayerController player)

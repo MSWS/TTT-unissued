@@ -53,8 +53,7 @@ public class RoleBehavior : IRoleService, IPluginBehavior
     public HookResult OnRoundStart(EventRoundFreezeEnd @event, GameEventInfo info)
     {
         _roundService.SetRoundStatus(RoundStatus.Waiting);
-        foreach (var player in Utilities.GetPlayers().Where(player =>
-                     player.IsReal() && player.Team != CsTeam.None || player.Team != CsTeam.Spectator))
+        foreach (var player in Utilities.GetPlayers().Where(player => player.IsReal() && player.Team != CsTeam.None || player.Team != CsTeam.Spectator))
         {
             player.RemoveWeapons();
             if (!string.IsNullOrEmpty("weapon_glock"))
@@ -188,20 +187,17 @@ public class RoleBehavior : IRoleService, IPluginBehavior
 
     public ISet<CCSPlayerController> GetTraitors()
     {
-        return service.Players().Where(player => player.PlayerRole() == Role.Traitor).Select(player => player.Player())
-            .ToHashSet();
+        return service.Players().Where(player => player.PlayerRole() == Role.Traitor).Select(player => player.Player()).ToHashSet();
     }
 
     public ISet<CCSPlayerController> GetDetectives()
     {
-        return service.Players().Where(player => player.PlayerRole() == Role.Detective).Select(player => player.Player())
-            .ToHashSet();
+        return service.Players().Where(player => player.PlayerRole() == Role.Detective).Select(player => player.Player()).ToHashSet();
     }
 
     public ISet<CCSPlayerController> GetInnocents()
     {
-        return service.Players().Where(player => player.PlayerRole() == Role.Innocent).Select(player => player.Player())
-            .ToHashSet();
+        return service.Players().Where(player => player.PlayerRole() == Role.Innocent).Select(player => player.Player()).ToHashSet();
     }
 
 
