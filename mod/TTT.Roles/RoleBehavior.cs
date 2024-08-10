@@ -90,7 +90,7 @@ public class RoleBehavior : IRoleService, IPluginBehavior
         var victim = @event.Userid;
         var attacker = @event.Attacker;
         
-        if (victim == null) return HookResult.Continue;
+        if (victim == null || attacker == null) return HookResult.Continue;
 
         SetColor(victim);
         
@@ -106,17 +106,14 @@ public class RoleBehavior : IRoleService, IPluginBehavior
 
         Server.NextFrame(() =>
         {
-            Server.PrintToChatAll(
-                StringUtils.FormatTTT($"{GetRole(victim).FormatStringFullAfter(" has been found.")}"));
+            Server.PrintToChatAll(StringUtils.FormatTTT($"{GetRole(victim).FormatStringFullAfter(" has been found.")}"));
 
             if (attacker == victim || attacker == null) return;
 
             attacker.ModifyScoreBoard();
 
-            victim.PrintToChat(StringUtils.FormatTTT(
-                $"You were killed by {GetRole(attacker).FormatStringFullAfter(" " + attacker.PlayerName)}."));
-            attacker.PrintToChat(StringUtils.FormatTTT(
-                $"You killed {GetRole(victim).FormatStringFullAfter(" " + victim.PlayerName)}."));
+            victim.PrintToChat(StringUtils.FormatTTT($"You were killed by {GetRole(attacker).FormatStringFullAfter(" " + attacker.PlayerName)}."));
+            attacker.PrintToChat(StringUtils.FormatTTT($"You killed {GetRole(victim).FormatStringFullAfter(" " + victim.PlayerName)}."));
         });
 
         return HookResult.Continue;
@@ -125,10 +122,11 @@ public class RoleBehavior : IRoleService, IPluginBehavior
     [GameEventHandler]
     public HookResult OnRoundEnd(EventRoundEnd @event, GameEventInfo info)
     {
-        var players = Utilities.GetPlayers()
-            .Where(player => player.IsValid).Where(player => player.IsReal()).ToList();
+        var players = Utilities.GetPlayers().Where(player => player.IsValid).Where(player => player.IsReal()).ToList();
 
-        foreach (var player in players) player.PrintToCenter(GetWinner().FormatStringFullAfter("s has won!"));
+        foreach (var player in players) {
+            player.PrintToCenter(GetWinner().FormatStringFullAfter("s has won!"));
+        }
 
         Server.NextFrame(Clear);
 
@@ -155,7 +153,7 @@ public class RoleBehavior : IRoleService, IPluginBehavior
         var eligible = Utilities.GetPlayers()
             .Where(player => player.IsReal())
             .Where(player => player.Team is not (CsTeam.Spectator or CsTeam.None))
-            .ToList();
+            .ToList(); // THIS IS HOW YOU PROPERLY DO IT CONTINUE LIKE THIS. 
 
         var traitorCount = (int)Math.Floor(Convert.ToDouble(eligible.Count / 3));
         var detectiveCount = (int)Math.Floor(Convert.ToDouble(eligible.Count / 8));
@@ -182,6 +180,7 @@ public class RoleBehavior : IRoleService, IPluginBehavior
         AddInnocents(eligible);
     }
 
+    // i dont even want to bother with these 3 -nolyn
     public ISet<CCSPlayerController> GetTraitors()
     {
         return service.Players().Where(player => player.PlayerRole() == Role.Traitor).Select(player => player.Player()).ToHashSet();
@@ -208,7 +207,6 @@ public class RoleBehavior : IRoleService, IPluginBehavior
         service.GetPlayer(player).SetPlayerRole(Role.Traitor);
         player.SwitchTeam(CsTeam.Terrorist);
         player.PrintToCenter(Role.Traitor.FormatStringFullBefore("You are now a(n)"));
-        player.PrintToChat(Role.Traitor.FormatStringFullBefore("You are now a(n)"));
         ModelHandler.SetModelNextServerFrame(player, ModelHandler.ModelPathTmPhoenix);
     }
 
@@ -226,8 +224,8 @@ public class RoleBehavior : IRoleService, IPluginBehavior
         foreach (var player in players)
         {
             service.GetPlayer(player).SetPlayerRole(Role.Innocent);
-            player.PrintToCenter(Role.Innocent.FormatStringFullBefore("You are now an"));
             player.SwitchTeam(CsTeam.Terrorist);
+            player.PrintToCenter(Role.Innocent.FormatStringFullBefore("You are now an"));
             ModelHandler.SetModelNextServerFrame(player, ModelHandler.ModelPathTmPhoenix);
         }
     }
@@ -277,7 +275,7 @@ public class RoleBehavior : IRoleService, IPluginBehavior
         Utilities.SetStateChanged(pawn, "CBaseModelEntity", "m_clrRender");
     }
     
-    public void RemoveColor(CCSPlayerController player)
+    public static void RemoveColor(CCSPlayerController player)
     {
         if (!player.IsReal()) return;
 
@@ -288,9 +286,7 @@ public class RoleBehavior : IRoleService, IPluginBehavior
         pawn.RenderMode = RenderMode_t.kRenderTransColor;
         pawn.Render = Color.FromArgb(254, 255, 255, 255);
 
-        
         Utilities.SetStateChanged(pawn, "CBaseModelEntity", "m_clrRender");
-        
     }
 }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
 using TTT.Public.Behaviors;
@@ -55,10 +56,12 @@ public class PlayerBehavior() : IPlayerService, IPluginBehavior
         if (!_players.TryGetValue(player, out var value)) return;
         if (karma < 0) return;
         
-        if (value.Karma() - karma < 40)
+        if (value.Karma() - karma < 40) {
+            Server.ExecuteCommand($"css_ban #{player.UserId} 1440 Karma too low"); // handle this shit here let GamePlayer be direct.
             value.SetKarma(40);
-        else
+        } else {
             value.RemoveKarma(karma);
+        }
     }
 
     public List<GamePlayer> Players()

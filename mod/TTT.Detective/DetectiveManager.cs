@@ -33,39 +33,42 @@ public class DetectiveManager(IPlayerService roleService) : IDetectiveService, I
     public HookResult OnZeus(DynamicHook hook)
     {
         var ent = hook.GetParam<CBaseEntity>(0);
+        var victim = player(ent);
 
-        var playerWhoWasDamaged = player(ent);
-
-        if (playerWhoWasDamaged == null) return HookResult.Continue;
+        if (victim == null) return HookResult.Continue;
 
         var info = hook.GetParam<CTakeDamageInfo>(1);
-
-        CCSPlayerController? attacker = null;
-
-        if (info.Attacker.Value != null)
+        var attacker = info.Attacker.Value;
+        if (attacker is not null and CCSPlayerPawn playerPawn)
         {
-            var playerWhoAttacked = info.Attacker.Value.As<CCSPlayerPawn>();
+            var controller = playerPawn.Controller.Value;
+            if (controller is not null and CCSPlayerController playerController)
+            {
+                if (info.BitsDamageType is not 256) return HookResult.Continue;
+                info.Damage = 0;
 
-            if (playerWhoAttacked.Controller.Value != null) {
-                attacker = playerWhoAttacked.Controller.Value.As<CCSPlayerController>();
+                var targetRole = roleService.GetPlayer(victim);
+                Server.NextFrame(() =>
+                {
+                    playerController.PrintToChat(StringUtils.FormatTTT($"You tased player {victim.PlayerName} they are a {targetRole.PlayerRole().FormatRoleFull()}"));
+                });
+                
+                return HookResult.Stop;
             }
         }
+        return HookResult.Continue;
 
-        if (info.BitsDamageType is not 256) return HookResult.Continue;
-        if (attacker == null) return HookResult.Continue;
+        // whoever wrote this shit needs help
+        // CCSPlayerController? attacker = null;
 
-        info.Damage = 0;
+        // if (info.Attacker.Value != null)
+        // {
+        //     var playerWhoAttacked = info.Attacker.Value.As<CCSPlayerPawn>();
 
-        var targetRole = roleService.GetPlayer(playerWhoWasDamaged);
-
-        Server.NextFrame(() =>
-        {
-            attacker.PrintToChat(
-                StringUtils.FormatTTT(
-                    $"You tased player {playerWhoWasDamaged.PlayerName} they are a {targetRole.PlayerRole().FormatRoleFull()}"));
-        });
-        
-        return HookResult.Stop;
+        //     if (playerWhoAttacked.Controller.Value != null) {
+        //         attacker = playerWhoAttacked.Controller.Value.As<CCSPlayerController>();
+        //     }
+        // }
     }
 
     
