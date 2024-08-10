@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TTT.Round")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+24ab71c91271fa3798d30145e05c477a1c30d5e7")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+48f9023de2f1258d7698c1e0e7361b214ead8225")]
 [assembly: System.Reflection.AssemblyProductAttribute("TTT.Round")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TTT.Round")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
